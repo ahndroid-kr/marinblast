@@ -42,30 +42,23 @@ function checkPauseButtonHit(clientX, clientY) {
   const rect = canvas.getBoundingClientRect();
   const cx = ((clientX - rect.left) / rect.width) * W;
   const cy = ((clientY - rect.top) / rect.height) * H;
+  // BGM 버튼
   if (currentScene.hitBgmButton && currentScene.hitBgmButton(cx, cy)) {
     audio.toggleMute();
     return true;
   }
+  // RESUME 버튼 (일시정지 화면의 하단 버튼)
+  if (currentScene.hitResumeButton && currentScene.hitResumeButton(cx, cy)) {
+    input.triggerPause();
+    return true;
+  }
+  // 일시정지 아이콘 버튼 (좌측 상단)
   if (currentScene.hitPauseButton(cx, cy)) {
     input.triggerPause();
     return true;
   }
   return false;
 }
-
-canvas.addEventListener('touchstart', (e) => {
-  if (e.touches[0] && checkPauseButtonHit(e.touches[0].clientX, e.touches[0].clientY)) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-}, { capture: true, passive: false });
-
-canvas.addEventListener('mousedown', (e) => {
-  if (checkPauseButtonHit(e.clientX, e.clientY)) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-}, { capture: true });
 
 let currentScene = null;
 
