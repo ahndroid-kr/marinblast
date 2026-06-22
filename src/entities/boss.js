@@ -5,14 +5,14 @@ import { assets } from '../assetManager.js';
 export function makeBoss() {
   return {
     active: false,
-    x: W - 110, y: H / 2,
+    x: W - 130, y: H / 2,
     vy: 25,
     hp: 250, maxHp: 250,
     phase: 1,
     age: 0,
     fireTimer: 1.5,
-    drawW: 160, drawH: 115,
-    hitRadius: 50,
+    drawW: 220, drawH: 158,
+    hitRadius: 70,
     points: 8000,
     intro: 1.5,
     dying: 0,
@@ -21,7 +21,7 @@ export function makeBoss() {
 
 export function spawnBoss(b) {
   b.active = true;
-  b.x = W + 80;
+  b.x = W + 120;
   b.y = H / 2;
   b.vy = 28;
   b.hp = b.maxHp;
@@ -56,17 +56,17 @@ export function updateBoss(b, dt, player, enemyBulletPool, particlePool) {
 
   if (b.intro > 0) {
     b.intro -= dt;
-    b.x = Math.max(W - 130, b.x - 50 * dt);
+    b.x = Math.max(W - 150, b.x - 50 * dt);
     return;
   }
 
   // 위아래 부유
   b.y += b.vy * dt;
-  if (b.y < 70) b.vy = Math.abs(b.vy);
-  if (b.y > H - 70) b.vy = -Math.abs(b.vy);
+  if (b.y < 90) b.vy = Math.abs(b.vy);
+  if (b.y > H - 90) b.vy = -Math.abs(b.vy);
 
   // x 흔들림
-  b.x = W - 110 + Math.sin(b.age * 0.8) * 18;
+  b.x = W - 130 + Math.sin(b.age * 0.8) * 20;
 
   // 페이즈 전환
   if (b.phase === 1 && b.hp < b.maxHp * 0.5) {

@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>마린 블라스트</title>
   <style>
@@ -14,12 +14,16 @@
       touch-action: none;
       -webkit-user-select: none;
       user-select: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
     }
     body {
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: -apple-system, system-ui, sans-serif;
+      /* iOS notch / safe-area 무시하고 화면 전체 사용 */
+      padding: 0;
     }
     #stage {
       position: relative;

@@ -12,22 +12,22 @@ export function makeEnemy() {
   };
 }
 
-// 게임 내 draw 크기 (실제 비례 유지)
+// 멸치 < 옵션≒불가사리 < 새우≒고등어≒잠수함(78x52) < 보스
 export const ENEMY_PRESETS = {
   anchovy: {
-    hp: 1, spawnVx: -100, radius: 8, fireInterval: 999,
+    hp: 1, spawnVx: -100, radius: 7, fireInterval: 999,
     points: 100, dropChance: 0.1,
-    drawW: 36, drawH: 15,
+    drawW: 30, drawH: 12,
   },
   shrimp: {
-    hp: 2, spawnVx: -55, radius: 14, fireInterval: 2.0,
+    hp: 2, spawnVx: -55, radius: 22, fireInterval: 2.0,
     points: 200, dropChance: 0.25,
-    drawW: 48, drawH: 40,
+    drawW: 70, drawH: 58,
   },
   mackerel: {
-    hp: 3, spawnVx: -140, radius: 18, fireInterval: 3.0,
+    hp: 3, spawnVx: -140, radius: 22, fireInterval: 3.0,
     points: 300, dropChance: 0.35,
-    drawW: 64, drawH: 33,
+    drawW: 80, drawH: 42,
   },
 };
 
@@ -60,7 +60,7 @@ export function updateEnemy(e, dt, player, enemyBulletPool) {
       e.x += e.spawnVx * dt;
       e.y = e.spawnY + Math.sin(e.age * 1.5) * 32;
       e.fireTimer -= dt;
-      if (e.fireTimer <= 0 && e.x < W - 20) {
+      if (e.fireTimer <= 0 && e.x < W - 30) {
         e.fireTimer = e.fireInterval;
         _fireAimed(e, player, enemyBulletPool, 110);
       }
@@ -68,13 +68,13 @@ export function updateEnemy(e, dt, player, enemyBulletPool) {
     case 'mackerel':
       e.x += e.spawnVx * dt;
       e.fireTimer -= dt;
-      if (e.fireTimer <= 0 && e.x < W - 30 && e.x > 30) {
+      if (e.fireTimer <= 0 && e.x < W - 40 && e.x > 40) {
         e.fireTimer = e.fireInterval;
         _fireAimed(e, player, enemyBulletPool, 120);
       }
       break;
   }
-  if (e.x < -40 || e.y < -40 || e.y > H + 40) e.active = false;
+  if (e.x < -50 || e.y < -50 || e.y > H + 50) e.active = false;
 }
 
 function _fireAimed(e, player, pool, speed) {

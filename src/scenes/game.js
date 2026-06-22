@@ -160,7 +160,7 @@ export class GameScene {
   }
 
   _spawnEvent(ev) {
-    const xSpawn = W + 10;
+    const xSpawn = W + 50; // 더 멀리서 등장 (화면 가장자리에 갑자기 나타나는 것 방지)
     for (const y of ev.ys) {
       const e = this.enemies.spawn();
       if (e) resetEnemy(e, ev.kind, xSpawn, y);

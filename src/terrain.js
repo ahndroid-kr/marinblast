@@ -90,7 +90,11 @@ export class Terrain {
     }
     ctx.stroke();
 
-    // 식물 타일
+    // 식물 타일 — 화면 안에서만 그리되, 우측 가장자리에서 잘려 보이지 않도록 클리핑
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 0, W, H);
+    ctx.clip();
     for (const d of this.deco) {
       const screenX = d.x - cameraX;
       if (screenX < -80 || screenX > W + 40) continue;
@@ -102,5 +106,6 @@ export class Terrain {
       const drawW = img.naturalWidth * d.scale * 0.7;
       ctx.drawImage(img, screenX - drawW / 2, bottom - drawH + 3, drawW, drawH);
     }
+    ctx.restore();
   }
 }
