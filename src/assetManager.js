@@ -19,6 +19,14 @@ import mirugaiUrl from './assets/enemy_mirugai.png';
 import hirameUrl from './assets/enemy_hirame.png';
 import buriUrl from './assets/enemy_buri.png';
 import energyPotionUrl from './assets/energy_potion.png';
+// 스테이지 3 에셋
+import bossOrcaUrl from './assets/boss_orca.png';
+import bossOrcaDeadUrl from './assets/boss_orca_dead.png';
+import stripedbeakfishUrl from './assets/enemy_stripedbeakfish.png';
+import barracudaUrl from './assets/enemy_barracuda.png';
+import pufferfishUrl from './assets/enemy_pufferfish.png';
+import pufferfishAngryUrl from './assets/enemy_pufferfish_angry.png';
+import stage3BgUrl from './assets/stage3_bg.png';
 import plant00 from './assets/plant_00.png';
 import plant01 from './assets/plant_01.png';
 import plant02 from './assets/plant_02.png';
@@ -44,6 +52,14 @@ const URLS = {
   star_yellow: starYellowUrl, star_blue: starBlueUrl, star_green: starGreenUrl,
   enemy_anchovy: anchovyUrl, enemy_shrimp: shrimpUrl, enemy_mackerel: mackerelUrl,
   enemy_mirugai: mirugaiUrl, enemy_hirame: hirameUrl, enemy_buri: buriUrl,
+  // 스테이지 3
+  boss_orca: bossOrcaUrl,
+  boss_orca_dead: bossOrcaDeadUrl,
+  enemy_stripedbeakfish: stripedbeakfishUrl,
+  enemy_barracuda: barracudaUrl,
+  enemy_pufferfish: pufferfishUrl,
+  enemy_pufferfish_angry: pufferfishAngryUrl,
+  stage3_bg: stage3BgUrl,
   plant_00:plant00, plant_01:plant01, plant_02:plant02,
   plant_03:plant03, plant_04:plant04, plant_05:plant05,
   plant_06:plant06, plant_07:plant07, plant_08:plant08,

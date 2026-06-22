@@ -5,6 +5,7 @@ import { Input } from './input.js';
 import { TitleScene } from './scenes/title.js';
 import { GameScene } from './scenes/game.js';
 import { Game2Scene } from './scenes/game2.js';
+import { Game3Scene } from './scenes/game3.js';
 import { submitScore, getTopScores, isRemoteEnabled } from './leaderboard.js';
 import { loadAssets } from './assetManager.js';
 
@@ -77,7 +78,16 @@ function startGame() {
   });
 }
 function startGame2(score, lives) {
-  currentScene = new Game2Scene(score, lives, (finalScore) => onGameOver(finalScore));
+  currentScene = new Game2Scene(score, lives, (finalScore, remainLives) => {
+    if (remainLives > 0) {
+      startGame3(finalScore, remainLives);
+    } else {
+      onGameOver(finalScore);
+    }
+  });
+}
+function startGame3(score, lives) {
+  currentScene = new Game3Scene(score, lives, (finalScore) => onGameOver(finalScore));
 }
 function onGameOver(score) {
   showNameModal(score);
