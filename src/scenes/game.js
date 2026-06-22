@@ -476,11 +476,11 @@ export class GameScene {
     return b && this.paused && cx >= b.x && cx <= b.x + b.w && cy >= b.y && cy <= b.y + b.h;
   }
 
-  hitPauseButton(cx, cy) {
-    const b = this._pauseBtn;
-    if (!b) return false;
-    return cx >= b.x && cx <= b.x + b.w && cy >= b.y && cy <= b.y + b.h;
-  }
+hitResumeButton(cx, cy) {
+  if (!this.paused) return false;
+  // RESUME 버튼: W/2 중앙, H/2+20 ~ H/2+42
+  return cx >= W/2 - 55 && cx <= W/2 + 55 && cy >= H/2 + 18 && cy <= H/2 + 42;
+}
 
   _drawHUD(ctx) {
     // HUD 배경 (가독성)
