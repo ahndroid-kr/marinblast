@@ -467,3 +467,8 @@ export class Game3Scene {
     return b && cx>=b.x && cx<=b.x+b.w && cy>=b.y && cy<=b.y+b.h;
   }
 }
+hitResumeButton(cx, cy) {
+  if (!this.paused) return false;
+  // RESUME 버튼: W/2 중앙, H/2+20 ~ H/2+42
+  return cx >= W/2 - 55 && cx <= W/2 + 55 && cy >= H/2 + 18 && cy <= H/2 + 42;
+}
