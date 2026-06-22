@@ -1,7 +1,5 @@
-// Supabase 랭킹 래퍼.
-// 환경변수가 없으면 자동으로 localStorage 폴백으로 동작 (개발 편의).
-
 import { createClient } from '@supabase/supabase-js';
+import { LEADERBOARD_LIMIT } from './config.js';
 
 const URL = import.meta.env.VITE_SUPABASE_URL;
 const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -21,12 +19,8 @@ export function isRemoteEnabled() {
 
 export async function submitScore(name, score) {
   const cleanName = (name || 'Player').trim().slice(0, 12) || 'Player';
-
-  // 로컬에는 항상 저장 (오프라인/실패 대비)
   saveLocal(cleanName, score);
-
   if (!enabled) return { local: true };
-
   try {
     const { error } = await client
       .from('marine_blast_scores')
@@ -42,9 +36,8 @@ export async function submitScore(name, score) {
   }
 }
 
-export async function getTopScores(limit = 20) {
+export async function getTopScores(limit = LEADERBOARD_LIMIT) {
   if (!enabled) return getLocalScores(limit);
-
   try {
     const { data, error } = await client
       .from('marine_blast_scores')
@@ -62,7 +55,6 @@ export async function getTopScores(limit = 20) {
   }
 }
 
-// 로컬 폴백
 function saveLocal(name, score) {
   try {
     const raw = localStorage.getItem(LS_KEY);

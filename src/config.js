@@ -1,41 +1,46 @@
 // 내부 렌더 해상도 (CSS로 확대 표시)
-export const W = 320;
+// 태블릿/폰 가로 모드 대응을 위해 5:3 와이드 비율 사용
+export const W = 400;
 export const H = 240;
 
 // 게임 루프
-export const FIXED_DT = 1 / 60; // 60Hz 고정 timestep
+export const FIXED_DT = 1 / 60;
 
 // 플레이어
 export const PLAYER = {
-  speed: 110,      // px/sec
-  fireRate: 0.12,  // sec between shots
+  speed: 130,
+  fireRate: 0.12,
   hitRadius: 3,
-  startX: 60,
+  startX: 70,
   startY: 120,
+  drawW: 28,
+  drawH: 18,
 };
+
+// 옵션 (미니 동료)
+export const OPTION_DRAW = { w: 16, h: 10, trailDelay: 14, maxCount: 2 };
 
 // 탄
 export const BULLET = {
-  speed: 280,
+  speed: 320,
   radius: 2,
-  poolSize: 64,
+  poolSize: 80,
 };
 
 // 적 풀 크기
 export const POOL = {
-  enemy: 32,
-  enemyBullet: 96,
-  particle: 64,
+  enemy: 36,
+  enemyBullet: 120,
+  particle: 80,
   powerup: 8,
   option: 4,
 };
 
-// 불가사리 색 사이클 (분홍 → 빨강 → 노랑 → 파랑 → 초록 → 다시 분홍)
+// 불가사리 색 사이클
 export const STARFISH_COLORS = ['pink', 'red', 'yellow', 'blue', 'green'];
-export const STARFISH_CYCLE_INTERVAL = 1.0; // sec
+export const STARFISH_CYCLE_INTERVAL = 1.0;
 export const STARFISH_SPEED = 35;
 
-// 색별 효과 라벨 (디버그/HUD용)
 export const STARFISH_EFFECT = {
   pink:   { label: '1000pt' },
   red:    { label: 'POWER UP' },
@@ -44,11 +49,10 @@ export const STARFISH_EFFECT = {
   green:  { label: 'BOMB' },
 };
 
-// 옵션(미니 동료)
-export const OPTION = {
-  trailDelay: 14, // 플레이어 과거 좌표 큐 인덱스 간격 (프레임 수)
-  maxCount: 2,
-};
-
-// 무적 시간
 export const SHIELD_DURATION = 5.0;
+
+// 랭킹 표시 인원
+export const LEADERBOARD_LIMIT = 10;
+
+// 옵션 호환성용 (구 코드에서 OPTION import하는 경우)
+export const OPTION = { trailDelay: OPTION_DRAW.trailDelay, maxCount: OPTION_DRAW.maxCount };
