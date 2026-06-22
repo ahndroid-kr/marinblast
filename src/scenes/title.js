@@ -38,17 +38,23 @@ export class TitleScene {
       ctx.drawImage(logo, W / 2 - lw / 2, H / 2 - lh / 2 - 20, lw, lh);
     }
 
+    // PRESS ANY KEY — 로고 아래 고정
     if (Math.floor(this.t * 2) % 2 === 0) {
       ctx.font = '9px "Courier New", monospace';
       ctx.fillStyle = '#fff';
-      ctx.strokeText('PRESS ANY KEY / TOUCH TO START', W / 2, H / 2 + 30);
-      ctx.fillText('PRESS ANY KEY / TOUCH TO START', W / 2, H / 2 + 30);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.strokeText('PRESS ANY KEY / TOUCH TO START', W / 2, H / 2 + 70);
+      ctx.fillText('PRESS ANY KEY / TOUCH TO START', W / 2, H / 2 + 70);
     }
 
+    // 조작 안내 — 화면 맨 아래 고정
     ctx.font = '7px "Courier New", monospace';
     ctx.fillStyle = '#88aacc';
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 1.5;
+    ctx.strokeText('ARROW/WASD: MOVE   Z/SPACE: SHOOT', W / 2, H - 24);
     ctx.fillText('ARROW/WASD: MOVE   Z/SPACE: SHOOT', W / 2, H - 24);
+    ctx.strokeText('TOUCH: DRAG TO MOVE (AUTO FIRE)', W / 2, H - 14);
     ctx.fillText('TOUCH: DRAG TO MOVE (AUTO FIRE)', W / 2, H - 14);
     ctx.textAlign = 'left';
-  }
-}
