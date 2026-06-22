@@ -60,6 +60,8 @@ export class Game3Scene {
 
   update(dt, input) {
     if (this.done) return;
+    // 첫 프레임에 BGM 재시도 (타이틀에서 autoplay 실패 대비)
+    if (!this._audioStarted) { this._audioStarted = true; audio.play('main'); }
     if (input.pauseEdge && this.player.alive && this.phase !== PHASE_CLEAR) {
       this.paused = !this.paused;
       if (this.paused) audio.pause();
@@ -458,6 +460,10 @@ export class Game3Scene {
       ctx.fillRect(bx+5,by+4,2,8); ctx.fillRect(bx+9,by+4,2,8);
     }
   }
+  hitResumeButton(cx, cy) {
+    if (!this.paused) return false;
+    return cx >= W/2 - 55 && cx <= W/2 + 55 && cy >= H/2 + 18 && cy <= H/2 + 42;
+  }
   hitBgmButton(cx, cy) {
     const b = this._bgmBtn;
     return b && this.paused && cx>=b.x && cx<=b.x+b.w && cy>=b.y && cy<=b.y+b.h;
@@ -466,9 +472,4 @@ export class Game3Scene {
     const b = this._pauseBtn;
     return b && cx>=b.x && cx<=b.x+b.w && cy>=b.y && cy<=b.y+b.h;
   }
-}
-hitResumeButton(cx, cy) {
-  if (!this.paused) return false;
-  // RESUME 버튼: W/2 중앙, H/2+20 ~ H/2+42
-  return cx >= W/2 - 55 && cx <= W/2 + 55 && cy >= H/2 + 18 && cy <= H/2 + 42;
 }

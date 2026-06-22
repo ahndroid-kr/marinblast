@@ -1,5 +1,3 @@
-// 진입점. 캔버스 셋업, 반응형 스케일, 에셋 로드, 씬 전환, 리더보드 UI.
-
 import { W, H, FIXED_DT } from './config.js';
 import { Input } from './input.js';
 import { TitleScene } from './scenes/title.js';
@@ -16,11 +14,9 @@ canvas.width = W;
 canvas.height = H;
 ctx.imageSmoothingEnabled = false;
 
-// 반응형 스케일링 — 화면을 최대한 채우되 캔버스 비율 유지
 function resize() {
   const sw = window.innerWidth;
   const sh = window.innerHeight;
-  // 비율 유지 최대 스케일 (분수 허용해서 빈 공간 최소화)
   const scale = Math.min(sw / W, sh / H);
   const cssW = Math.floor(W * scale);
   const cssH = Math.floor(H * scale);
@@ -36,30 +32,6 @@ resize();
 
 const input = new Input(canvas);
 
-// 캔버스 클릭/터치 시작 시점에 일시정지 버튼 위에 있는지 확인
-function checkPauseButtonHit(clientX, clientY) {
-  if (!currentScene || !currentScene.hitPauseButton) return false;
-  const rect = canvas.getBoundingClientRect();
-  const cx = ((clientX - rect.left) / rect.width) * W;
-  const cy = ((clientY - rect.top) / rect.height) * H;
-  // BGM 버튼
-  if (currentScene.hitBgmButton && currentScene.hitBgmButton(cx, cy)) {
-    audio.toggleMute();
-    return true;
-  }
-  // RESUME 버튼 (일시정지 화면의 하단 버튼)
-  if (currentScene.hitResumeButton && currentScene.hitResumeButton(cx, cy)) {
-    input.triggerPause();
-    return true;
-  }
-  // 일시정지 아이콘 버튼 (좌측 상단)
-  if (currentScene.hitPauseButton(cx, cy)) {
-    input.triggerPause();
-    return true;
-  }
-  return false;
-}
-
 let currentScene = null;
 
 function startTitle() {
@@ -67,21 +39,14 @@ function startTitle() {
 }
 function startGame() {
   currentScene = new GameScene((score, lives) => {
-    // 스테이지 1 클리어 → 스테이지 2로 (게임오버면 lives=0)
-    if (lives > 0) {
-      startGame2(score, lives);
-    } else {
-      onGameOver(score);
-    }
+    if (lives > 0) startGame2(score, lives);
+    else onGameOver(score);
   });
 }
 function startGame2(score, lives) {
   currentScene = new Game2Scene(score, lives, (finalScore, remainLives) => {
-    if (remainLives > 0) {
-      startGame3(finalScore, remainLives);
-    } else {
-      onGameOver(finalScore);
-    }
+    if (remainLives > 0) startGame3(finalScore, remainLives);
+    else onGameOver(finalScore);
   });
 }
 function startGame3(score, lives) {
@@ -92,17 +57,18 @@ function onGameOver(score) {
 }
 
 // 모달 요소
-const loadingEl = document.getElementById('loading');
-const modalName = document.getElementById('modal-name');
-const modalBoard = document.getElementById('modal-board');
+const loadingEl   = document.getElementById('loading');
+const modalName   = document.getElementById('modal-name');
+const modalBoard  = document.getElementById('modal-board');
 const finalScoreEl = document.getElementById('final-score');
 const playerNameEl = document.getElementById('player-name');
-const submitBtn = document.getElementById('submit-score');
-const skipBtn = document.getElementById('skip-score');
+const submitBtn   = document.getElementById('submit-score');
+const skipBtn     = document.getElementById('skip-score');
 const boardListEl = document.getElementById('board-list');
-const restartBtn = document.getElementById('board-restart');
+const restartBtn  = document.getElementById('board-restart');
 
 function showNameModal(score) {
+  audio.stop();
   finalScoreEl.textContent = score;
   modalName.classList.add('show');
   playerNameEl.value = localStorage.getItem('marine_blast_last_name') || '';
@@ -113,12 +79,8 @@ async function showLeaderboard(playerName) {
   modalName.classList.remove('show');
   modalBoard.classList.add('show');
   boardListEl.textContent = '로딩 중...';
-
   const scores = await getTopScores(10);
-  if (!scores.length) {
-    boardListEl.textContent = '아직 기록이 없습니다.';
-    return;
-  }
+  if (!scores.length) { boardListEl.textContent = '아직 기록이 없습니다.'; return; }
   boardListEl.innerHTML = '';
   scores.forEach((row, i) => {
     const div = document.createElement('div');
@@ -131,16 +93,14 @@ async function showLeaderboard(playerName) {
   });
   if (!isRemoteEnabled()) {
     const note = document.createElement('div');
-    note.style.cssText = 'text-align:center; color:#888; font-size:10px; margin-top:8px;';
+    note.style.cssText = 'text-align:center;color:#888;font-size:10px;margin-top:8px;';
     note.textContent = '※ 로컬 저장 (서버 미연결)';
     boardListEl.appendChild(note);
   }
 }
 
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  }[c]));
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 submitBtn.addEventListener('click', async () => {
@@ -164,16 +124,59 @@ restartBtn.addEventListener('click', () => {
   startTitle();
 });
 
+// 일시정지 버튼 / BGM 버튼 / RESUME 버튼 처리
+function getCanvasPos(clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    cx: ((clientX - rect.left) / rect.width) * W,
+    cy: ((clientY - rect.top) / rect.height) * H,
+  };
+}
+
+function checkPauseButtonHit(clientX, clientY) {
+  if (!currentScene || !currentScene.hitPauseButton) return false;
+  const { cx, cy } = getCanvasPos(clientX, clientY);
+
+  // BGM 버튼 (일시정지 중)
+  if (currentScene.hitBgmButton && currentScene.hitBgmButton(cx, cy)) {
+    audio.toggleMute();
+    return true;
+  }
+  // RESUME 버튼 (일시정지 중)
+  if (currentScene.hitResumeButton && currentScene.hitResumeButton(cx, cy)) {
+    input.triggerPause();
+    return true;
+  }
+  // 일시정지 아이콘 (좌측 상단)
+  if (currentScene.hitPauseButton(cx, cy)) {
+    input.triggerPause();
+    return true;
+  }
+  return false;
+}
+
+canvas.addEventListener('touchstart', (e) => {
+  if (e.touches[0] && checkPauseButtonHit(e.touches[0].clientX, e.touches[0].clientY)) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}, { capture: true, passive: false });
+
+canvas.addEventListener('mousedown', (e) => {
+  if (checkPauseButtonHit(e.clientX, e.clientY)) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}, { capture: true });
+
 // 고정 timestep 루프
 let lastTime = 0;
 let accumulator = 0;
-let started = false;
 
 function frame(now) {
   const realDt = Math.min(0.25, (now - lastTime) / 1000);
   lastTime = now;
   accumulator += realDt;
-
   while (accumulator >= FIXED_DT) {
     if (currentScene) currentScene.update(FIXED_DT, input);
     input.endFrame();
@@ -183,7 +186,6 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 
-// 에셋 로드 후 게임 시작
 loadAssets((done, total) => {
   const pct = Math.floor((done / total) * 100);
   loadingEl.textContent = `LOADING... ${pct}%`;

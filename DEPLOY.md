@@ -1,200 +1,91 @@
-import { W, H, FIXED_DT } from './config.js';
-import { Input } from './input.js';
-import { TitleScene } from './scenes/title.js';
-import { GameScene } from './scenes/game.js';
-import { Game2Scene } from './scenes/game2.js';
-import { Game3Scene } from './scenes/game3.js';
-import { submitScore, getTopScores, isRemoteEnabled } from './leaderboard.js';
-import { loadAssets } from './assetManager.js';
-import { audio } from './audio.js';
+# GitHub Pages 배포 가이드
 
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d', { alpha: false });
-canvas.width = W;
-canvas.height = H;
-ctx.imageSmoothingEnabled = false;
+## 자동 배포 (권장)
 
-function resize() {
-  const sw = window.innerWidth;
-  const sh = window.innerHeight;
-  const scale = Math.min(sw / W, sh / H);
-  const cssW = Math.floor(W * scale);
-  const cssH = Math.floor(H * scale);
-  canvas.style.width = cssW + 'px';
-  canvas.style.height = cssH + 'px';
-  const stage = document.getElementById('stage');
-  stage.style.width = cssW + 'px';
-  stage.style.height = cssH + 'px';
-}
-window.addEventListener('resize', resize);
-window.addEventListener('orientationchange', () => setTimeout(resize, 100));
-resize();
+`.github/workflows/deploy.yml`이 이미 들어 있어서 푸시하면 자동으로 빌드·배포됩니다.
 
-const input = new Input(canvas);
+### 1단계 — 저장소 만들고 푸시
 
-let currentScene = null;
+```bash
+cd marine-blast
+git init
+git add .
+git commit -m "initial commit"
+git branch -M main
+git remote add origin https://github.com/USERNAME/REPO_NAME.git
+git push -u origin main
+```
 
-function startTitle() {
-  currentScene = new TitleScene(() => startGame());
-}
-function startGame() {
-  currentScene = new GameScene((score, lives) => {
-    if (lives > 0) startGame2(score, lives);
-    else onGameOver(score);
-  });
-}
-function startGame2(score, lives) {
-  currentScene = new Game2Scene(score, lives, (finalScore, remainLives) => {
-    if (remainLives > 0) startGame3(finalScore, remainLives);
-    else onGameOver(finalScore);
-  });
-}
-function startGame3(score, lives) {
-  currentScene = new Game3Scene(score, lives, (finalScore) => onGameOver(finalScore));
-}
-function onGameOver(score) {
-  showNameModal(score);
-}
+### 2단계 — vite.config.js의 base 경로 수정
 
-// 모달 요소
-const loadingEl   = document.getElementById('loading');
-const modalName   = document.getElementById('modal-name');
-const modalBoard  = document.getElementById('modal-board');
-const finalScoreEl = document.getElementById('final-score');
-const playerNameEl = document.getElementById('player-name');
-const submitBtn   = document.getElementById('submit-score');
-const skipBtn     = document.getElementById('skip-score');
-const boardListEl = document.getElementById('board-list');
-const restartBtn  = document.getElementById('board-restart');
+저장소 이름이 `marine-blast`라면:
 
-function showNameModal(score) {
-  audio.stop();
-  finalScoreEl.textContent = score;
-  modalName.classList.add('show');
-  playerNameEl.value = localStorage.getItem('marine_blast_last_name') || '';
-  setTimeout(() => playerNameEl.focus(), 100);
-}
-
-async function showLeaderboard(playerName) {
-  modalName.classList.remove('show');
-  modalBoard.classList.add('show');
-  boardListEl.textContent = '로딩 중...';
-  const scores = await getTopScores(10);
-  if (!scores.length) { boardListEl.textContent = '아직 기록이 없습니다.'; return; }
-  boardListEl.innerHTML = '';
-  scores.forEach((row, i) => {
-    const div = document.createElement('div');
-    div.className = 'row' + (row.name === playerName ? ' you' : '');
-    div.innerHTML =
-      `<span class="rank">${i + 1}.</span>` +
-      `<span class="name">${escapeHtml(row.name)}</span>` +
-      `<span class="score">${row.score}</span>`;
-    boardListEl.appendChild(div);
-  });
-  if (!isRemoteEnabled()) {
-    const note = document.createElement('div');
-    note.style.cssText = 'text-align:center;color:#888;font-size:10px;margin-top:8px;';
-    note.textContent = '※ 로컬 저장 (서버 미연결)';
-    boardListEl.appendChild(note);
-  }
-}
-
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-submitBtn.addEventListener('click', async () => {
-  const name = playerNameEl.value.trim() || 'Player';
-  localStorage.setItem('marine_blast_last_name', name);
-  submitBtn.disabled = true;
-  submitBtn.textContent = '등록 중...';
-  await submitScore(name, parseInt(finalScoreEl.textContent, 10));
-  submitBtn.disabled = false;
-  submitBtn.textContent = '기록 등록';
-  await showLeaderboard(name);
+```js
+// vite.config.js
+export default defineConfig({
+  base: '/marine-blast/',   // 여기를 저장소 이름으로
+  ...
 });
+```
 
-skipBtn.addEventListener('click', () => {
-  modalName.classList.remove('show');
-  startTitle();
-});
+수정 후 커밋·푸시.
 
-restartBtn.addEventListener('click', () => {
-  modalBoard.classList.remove('show');
-  startTitle();
-});
+> **사용자 사이트(`USERNAME.github.io` 저장소)로 배포하는 경우**는 `base: '/'` 그대로.
 
-// 일시정지 버튼 / BGM 버튼 / RESUME 버튼 처리
-function getCanvasPos(clientX, clientY) {
-  const rect = canvas.getBoundingClientRect();
-  return {
-    cx: ((clientX - rect.left) / rect.width) * W,
-    cy: ((clientY - rect.top) / rect.height) * H,
-  };
-}
+### 3단계 — GitHub Pages 활성화
 
-function checkPauseButtonHit(clientX, clientY) {
-  if (!currentScene || !currentScene.hitPauseButton) return false;
-  const { cx, cy } = getCanvasPos(clientX, clientY);
+저장소 페이지에서:
+1. **Settings → Pages** 이동
+2. **Source: GitHub Actions** 선택 (Deploy from branch 아님)
 
-  // BGM 버튼 (일시정지 중)
-  if (currentScene.hitBgmButton && currentScene.hitBgmButton(cx, cy)) {
-    audio.toggleMute();
-    return true;
-  }
-  // RESUME 버튼 (일시정지 중)
-  if (currentScene.hitResumeButton && currentScene.hitResumeButton(cx, cy)) {
-    input.triggerPause();
-    return true;
-  }
-  // 일시정지 아이콘 (좌측 상단)
-  if (currentScene.hitPauseButton(cx, cy)) {
-    input.triggerPause();
-    return true;
-  }
-  return false;
-}
+### 4단계 — Supabase 시크릿 등록 (랭킹 쓸 경우만)
 
-canvas.addEventListener('touchstart', (e) => {
-  if (e.touches[0] && checkPauseButtonHit(e.touches[0].clientX, e.touches[0].clientY)) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-}, { capture: true, passive: false });
+저장소에서:
+1. **Settings → Secrets and variables → Actions**
+2. **New repository secret**로 두 개 등록:
+   - `VITE_SUPABASE_URL` = `https://xxx.supabase.co`
+   - `VITE_SUPABASE_ANON_KEY` = `eyJ...`
 
-canvas.addEventListener('mousedown', (e) => {
-  if (checkPauseButtonHit(e.clientX, e.clientY)) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-}, { capture: true });
+> 시크릿을 안 넣어도 빌드는 됩니다. 다만 랭킹이 localStorage 폴백으로 동작 (디바이스 한정).
 
-// 고정 timestep 루프
-let lastTime = 0;
-let accumulator = 0;
+### 5단계 — 확인
 
-function frame(now) {
-  const realDt = Math.min(0.25, (now - lastTime) / 1000);
-  lastTime = now;
-  accumulator += realDt;
-  while (accumulator >= FIXED_DT) {
-    if (currentScene) currentScene.update(FIXED_DT, input);
-    input.endFrame();
-    accumulator -= FIXED_DT;
-  }
-  if (currentScene) currentScene.draw(ctx);
-  requestAnimationFrame(frame);
-}
+푸시 후 **Actions** 탭에서 빌드 진행상황 확인. 2~3분 후 `https://USERNAME.github.io/REPO_NAME/`에서 접속.
 
-loadAssets((done, total) => {
-  const pct = Math.floor((done / total) * 100);
-  loadingEl.textContent = `LOADING... ${pct}%`;
-}).then(() => {
-  loadingEl.classList.add('hidden');
-  startTitle();
-  lastTime = performance.now();
-  requestAnimationFrame(frame);
-}).catch(err => {
-  loadingEl.textContent = '에셋 로드 실패: ' + err.message;
-  console.error(err);
-});
+---
+
+## 수동 배포 (간단하지만 매번 빌드 필요)
+
+GitHub Actions 안 쓰고 빌드 결과물만 올리는 방식.
+
+```bash
+# 로컬에서 빌드
+npm install
+npm run build
+# dist/ 폴더 생성됨
+
+# dist 내용을 gh-pages 브랜치로 푸시
+cd dist
+git init
+git add .
+git commit -m "deploy"
+git branch -M gh-pages
+git remote add origin https://github.com/USERNAME/REPO_NAME.git
+git push -f origin gh-pages
+```
+
+저장소 **Settings → Pages**에서 **Source: Deploy from branch → gh-pages / root** 선택.
+
+이 방식은 매번 빌드하고 푸시해야 해서 불편합니다. 한두 번 테스트 용도면 OK.
+
+---
+
+## 흔한 문제
+
+**404 또는 흰 화면**: `vite.config.js`의 `base` 경로가 저장소 이름과 안 맞음. `/REPO_NAME/`로 정확히.
+
+**랭킹이 로컬 폴백으로만 동작**: 시크릿 미등록. Actions 탭에서 빌드 로그 확인.
+
+**Actions 실패 - "pages site not enabled"**: Settings → Pages에서 Source를 "GitHub Actions"로 먼저 바꿔야 함.
+
+**빌드는 됐는데 게임이 안 뜸**: 브라우저 콘솔(F12) 확인. asset 경로 404면 base 경로 문제.

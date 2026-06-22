@@ -2,7 +2,6 @@ import playerUrl from './assets/player.png';
 import optionUrl from './assets/option.png';
 import bgUrl from './assets/background.png';
 import midUrl from './assets/parallax_mid.png';
-import titleLogoUrl from './assets/title.png';
 import bossUrl from './assets/boss_octopus.png';
 import bossDeadUrl from './assets/boss_octopus_dead.png';
 import starPinkUrl from './assets/star_pink.png';
@@ -42,7 +41,6 @@ import plant10 from './assets/plant_10.png';
 import plant11 from './assets/plant_11.png';
 
 const URLS = {
-  title_logo: titleLogoUrl,
   player: playerUrl, option: optionUrl,
   background: bgUrl, parallax_mid: midUrl,
   boss_octopus: bossUrl,

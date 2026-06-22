@@ -53,6 +53,7 @@ export class GameScene {
     this.bossWarnTimer = 0;
     this.clearTimer = 0;
     this.paused = false;
+    this._audioStarted = false;
   }
 
   showMessage(text, duration = 1.5) {
@@ -64,6 +65,8 @@ export class GameScene {
     if (this.done) return;
 
     // 일시정지 토글 (사망/클리어 중에는 토글 불가)
+    // 첫 프레임에 BGM 재시도 (타이틀에서 autoplay 실패 대비)
+    if (!this._audioStarted) { this._audioStarted = true; audio.play('main'); }
     if (input.pauseEdge && this.player.alive && this.phase !== PHASE_CLEAR) {
       this.paused = !this.paused;
       if (this.paused) audio.pause();
@@ -471,16 +474,20 @@ export class GameScene {
     }
   }
 
+  hitResumeButton(cx, cy) {
+    if (!this.paused) return false;
+    return cx >= W/2 - 55 && cx <= W/2 + 55 && cy >= H/2 + 18 && cy <= H/2 + 42;
+  }
   hitBgmButton(cx, cy) {
     const b = this._bgmBtn;
     return b && this.paused && cx >= b.x && cx <= b.x + b.w && cy >= b.y && cy <= b.y + b.h;
   }
 
-hitResumeButton(cx, cy) {
-  if (!this.paused) return false;
-  // RESUME 버튼: W/2 중앙, H/2+20 ~ H/2+42
-  return cx >= W/2 - 55 && cx <= W/2 + 55 && cy >= H/2 + 18 && cy <= H/2 + 42;
-}
+  hitPauseButton(cx, cy) {
+    const b = this._pauseBtn;
+    if (!b) return false;
+    return cx >= b.x && cx <= b.x + b.w && cy >= b.y && cy <= b.y + b.h;
+  }
 
   _drawHUD(ctx) {
     // HUD 배경 (가독성)
