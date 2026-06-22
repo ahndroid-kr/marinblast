@@ -17,17 +17,17 @@ export const ENEMY_PRESETS = {
   anchovy: {
     hp: 1, spawnVx: -100, radius: 7, fireInterval: 999,
     points: 100, dropChance: 0.1,
-    drawW: 30, drawH: 12,
+    drawW: 30, drawH: 9.6,
   },
   shrimp: {
     hp: 2, spawnVx: -55, radius: 5, fireInterval: 2.0,
     points: 200, dropChance: 0.25,
-    drawW: 14, drawH: 12,
+    drawW: 28, drawH: 24,
   },
   mackerel: {
     hp: 3, spawnVx: -140, radius: 22, fireInterval: 3.0,
     points: 300, dropChance: 0.35,
-    drawW: 80, drawH: 42,
+    drawW: 40, drawH: 21,
   },
 };
 
