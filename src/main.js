@@ -8,6 +8,7 @@ import { Game2Scene } from './scenes/game2.js';
 import { Game3Scene } from './scenes/game3.js';
 import { submitScore, getTopScores, isRemoteEnabled } from './leaderboard.js';
 import { loadAssets } from './assetManager.js';
+import { audio } from './audio.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d', { alpha: false });
@@ -41,6 +42,10 @@ function checkPauseButtonHit(clientX, clientY) {
   const rect = canvas.getBoundingClientRect();
   const cx = ((clientX - rect.left) / rect.width) * W;
   const cy = ((clientY - rect.top) / rect.height) * H;
+  if (currentScene.hitBgmButton && currentScene.hitBgmButton(cx, cy)) {
+    audio.toggleMute();
+    return true;
+  }
   if (currentScene.hitPauseButton(cx, cy)) {
     input.triggerPause();
     return true;
