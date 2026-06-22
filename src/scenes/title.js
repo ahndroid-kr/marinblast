@@ -19,11 +19,10 @@ export class TitleScene {
   draw(ctx) {
     this.parallax.draw(ctx, this.scrollX, this.t);
 
-    // 약간 어둡게
     ctx.fillStyle = 'rgba(0, 16, 32, 0.35)';
     ctx.fillRect(0, 0, W, H);
 
-    // 잠수함 데모 — 둥실
+    // 잠수함 데모
     const subImg = flipped.player;
     if (subImg) {
       const subW = 56, subH = 36;
@@ -31,7 +30,26 @@ export class TitleScene {
       ctx.drawImage(subImg, W / 2 - subW / 2, H - 80 + bob, subW, subH);
     }
 
-    // PRESS ANY KEY — 로고 아래 고정
+    // 타이틀 로고 이미지
+    ctx.textAlign = 'center';
+    const logo = assets.title_logo;
+    if (logo) {
+      const lw = 200;
+      const lh = Math.round(logo.naturalHeight * (lw / logo.naturalWidth));
+      ctx.drawImage(logo, W / 2 - lw / 2, H / 2 - lh / 2 - 20, lw, lh);
+    } else {
+      ctx.font = 'bold 32px "Courier New", monospace';
+      ctx.strokeStyle = '#003050';
+      ctx.lineWidth = 4;
+      ctx.fillStyle = '#80e0ff';
+      ctx.strokeText('MARINE', W / 2, H / 2 - 30);
+      ctx.fillText('MARINE', W / 2, H / 2 - 30);
+      ctx.fillStyle = '#ffcc40';
+      ctx.strokeText('BLAST', W / 2, H / 2 + 4);
+      ctx.fillText('BLAST', W / 2, H / 2 + 4);
+    }
+
+    // PRESS ANY KEY
     if (Math.floor(this.t * 2) % 2 === 0) {
       ctx.font = '9px "Courier New", monospace';
       ctx.fillStyle = '#fff';
@@ -41,7 +59,7 @@ export class TitleScene {
       ctx.fillText('PRESS ANY KEY / TOUCH TO START', W / 2, H / 2 + 70);
     }
 
-    // 조작 안내 — 화면 맨 아래 고정
+    // 조작 안내
     ctx.font = '7px "Courier New", monospace';
     ctx.fillStyle = '#88aacc';
     ctx.strokeStyle = '#000';
@@ -51,3 +69,5 @@ export class TitleScene {
     ctx.strokeText('TOUCH: DRAG TO MOVE (AUTO FIRE)', W / 2, H - 14);
     ctx.fillText('TOUCH: DRAG TO MOVE (AUTO FIRE)', W / 2, H - 14);
     ctx.textAlign = 'left';
+  }
+}
