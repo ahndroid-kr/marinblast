@@ -48,6 +48,7 @@ export const STARFISH_EFFECT = {
 };
 
 export const SHIELD_DURATION = 5.0;
+export const POWER_DURATION = 10.0;
 
 export const LEADERBOARD_LIMIT = 10;
 
