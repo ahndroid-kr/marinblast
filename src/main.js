@@ -4,6 +4,7 @@ import { W, H, FIXED_DT } from './config.js';
 import { Input } from './input.js';
 import { TitleScene } from './scenes/title.js';
 import { GameScene } from './scenes/game.js';
+import { Game2Scene } from './scenes/game2.js';
 import { submitScore, getTopScores, isRemoteEnabled } from './leaderboard.js';
 import { loadAssets } from './assetManager.js';
 
@@ -66,7 +67,17 @@ function startTitle() {
   currentScene = new TitleScene(() => startGame());
 }
 function startGame() {
-  currentScene = new GameScene((score) => onGameOver(score));
+  currentScene = new GameScene((score, lives) => {
+    // 스테이지 1 클리어 → 스테이지 2로 (게임오버면 lives=0)
+    if (lives > 0) {
+      startGame2(score, lives);
+    } else {
+      onGameOver(score);
+    }
+  });
+}
+function startGame2(score, lives) {
+  currentScene = new Game2Scene(score, lives, (finalScore) => onGameOver(finalScore));
 }
 function onGameOver(score) {
   showNameModal(score);

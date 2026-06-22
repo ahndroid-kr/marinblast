@@ -152,16 +152,16 @@ export class GameScene {
       this.gameOverDelay += dt;
       if (this.gameOverDelay > 1.8) {
         this.done = true;
-        this.onGameOver(this.score);
+        this.onGameOver(this.score, 0); // lives=0 → 게임오버
       }
     }
 
-    // 클리어 후 점수 등록 화면으로
+    // 클리어 후 스테이지 2로
     if (this.phase === PHASE_CLEAR) {
       this.clearTimer -= dt;
       if (this.clearTimer <= 0) {
         this.done = true;
-        this.onGameOver(this.score);
+        this.onGameOver(this.score, this.lives); // lives 넘겨서 스테이지 2 이어서 플레이
       }
     }
   }
