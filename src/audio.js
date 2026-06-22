@@ -1,26 +1,32 @@
-// BGM 매니저 — main / boss 두 트랙
 import mainUrl from './assets/bgm_main.mp3';
 import bossUrl from './assets/bgm_boss.mp3';
 
+// 게임 로딩 시 미리 fetch해서 버퍼링
+function preload(url) {
+  const a = new Audio(url);
+  a.preload = 'auto';
+  a.load();
+  a.loop = true;
+  return a;
+}
+
 const bgms = {
-  main: new Audio(mainUrl),
-  boss: new Audio(bossUrl),
+  main: preload(mainUrl),
+  boss: preload(bossUrl),
 };
-bgms.main.loop = true;
-bgms.boss.loop = true;
 
 let current = null;
 let muted = false;
 
 export const audio = {
   play(name) {
-    if (current === name) return;
-    if (current) bgms[current].pause();
-    current = name;
-    if (!muted) {
-      bgms[name].currentTime = 0;
-      bgms[name].play().catch(() => {});
+    if (current === name && !bgms[name].paused) return;
+    if (current && current !== name) {
+      bgms[current].pause();
+      bgms[current].currentTime = 0;
     }
+    current = name;
+    if (!muted) bgms[name].play().catch(() => {});
   },
   stop() {
     if (current) { bgms[current].pause(); bgms[current].currentTime = 0; }
