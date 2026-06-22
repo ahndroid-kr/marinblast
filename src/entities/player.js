@@ -7,6 +7,7 @@ export function makePlayer() {
     y: PLAYER.startY,
     fireTimer: 0,
     power: 0,
+    powerTime: 0,    // 빨강 파워업 잔여 시간 (0이면 power=0)
     shieldTime: 0,
     alive: true,
     invulnAfterHit: 0,
@@ -41,6 +42,13 @@ export function updatePlayer(p, input, dt) {
 
   p.fireTimer -= dt;
   if (p.shieldTime > 0) p.shieldTime -= dt;
+  if (p.powerTime > 0) {
+    p.powerTime -= dt;
+    if (p.powerTime <= 0) {
+      p.powerTime = 0;
+      p.power = 0;
+    }
+  }
   if (p.invulnAfterHit > 0) p.invulnAfterHit -= dt;
 }
 

@@ -58,7 +58,8 @@ export function updateEnemy(e, dt, player, enemyBulletPool) {
       break;
     case 'shrimp':
       e.x += e.spawnVx * dt;
-      e.y = e.spawnY + Math.sin(e.age * 1.5) * 32;
+      // 진폭을 줄여서 화면 위로 사라지지 않게 (이전 32 → 16)
+      e.y = e.spawnY + Math.sin(e.age * 1.5) * 16;
       e.fireTimer -= dt;
       if (e.fireTimer <= 0 && e.x < W - 30) {
         e.fireTimer = e.fireInterval;

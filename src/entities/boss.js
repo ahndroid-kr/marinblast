@@ -135,10 +135,12 @@ export function damageBoss(b, dmg, particlePool) {
 
 export function drawBoss(ctx, b) {
   if (!b.active) return;
-  const img = assets.boss_octopus;
+  // 사망 중에는 죽은 보스 이미지, 아니면 일반 이미지
+  const img = (b.dying > 0) ? (assets.boss_octopus_dead || assets.boss_octopus) : assets.boss_octopus;
   let alpha = 1;
   if (b.dying > 0) {
-    alpha = (Math.floor(b.dying * 20) % 2 === 0) ? 0.3 : 1;
+    // 사망 중 깜박임 줄이고, 페이드아웃으로
+    alpha = Math.min(1, b.dying / 1.5);
   }
   if (b.intro > 0) alpha = Math.min(1, (1.8 - b.intro) / 1.8);
 
