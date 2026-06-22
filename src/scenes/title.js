@@ -31,13 +31,6 @@ export class TitleScene {
       ctx.drawImage(subImg, W / 2 - subW / 2, H - 80 + bob, subW, subH);
     }
 
-// 타이틀 로고 이미지
-    const logo = assets.title_logo;
-    if (logo) {
-      const lw = 200, lh = Math.round(logo.naturalHeight * (200 / logo.naturalWidth));
-      ctx.drawImage(logo, W / 2 - lw / 2, H / 2 - lh / 2 - 20, lw, lh);
-    }
-
     // PRESS ANY KEY — 로고 아래 고정
     if (Math.floor(this.t * 2) % 2 === 0) {
       ctx.font = '9px "Courier New", monospace';
