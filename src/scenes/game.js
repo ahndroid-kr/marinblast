@@ -1,5 +1,5 @@
 // 메인 게임 씬. 잡몹 구간 → 보스 등장 → 클리어.
-import { W, H, BULLET, POOL, PLAYER, SHIELD_DURATION, OPTION_DRAW } from '../config.js';
+import { W, H, BULLET, POOL, PLAYER, SHIELD_DURATION, POWER_DURATION, OPTION_DRAW } from '../config.js';
 import { Pool } from '../pool.js';
 import { Terrain } from '../terrain.js';
 import { Parallax } from '../parallax.js';
@@ -284,6 +284,8 @@ export class GameScene {
     explodeSmall(this.particles, this.player.x, this.player.y, '#ff6060');
     this.player.invulnAfterHit = 1.8;
     this.player.power = 0;
+    this.player.powerTime = 0;
+    this.player.shieldTime = 0;  // 피격 시 실드도 사라짐
     this.options.clear();
     this.optionCount = 0;
     if (this.lives <= 0) {
@@ -300,7 +302,8 @@ export class GameScene {
         break;
       case 'red':
         this.player.power = 1;
-        this.showMessage('POWER UP', 1.0);
+        this.player.powerTime += POWER_DURATION;
+        this.showMessage(`POWER UP ${Math.ceil(this.player.powerTime)}s`, 1.0);
         break;
       case 'yellow': {
         if (this.optionCount < OPTION_DRAW.maxCount) {
@@ -317,8 +320,9 @@ export class GameScene {
         break;
       }
       case 'blue':
-        this.player.shieldTime = SHIELD_DURATION;
-        this.showMessage('SHIELD', 1.0);
+        // 누적 연장 (덮어쓰기 X)
+        this.player.shieldTime += SHIELD_DURATION;
+        this.showMessage(`SHIELD ${Math.ceil(this.player.shieldTime)}s`, 1.0);
         break;
       case 'green':
         this.bombFlash = 1.0;
@@ -407,31 +411,28 @@ export class GameScene {
     }
   }
 
-  // 우측 상단 일시정지 아이콘 (탭하면 일시정지)
+  // 좌측 상단 일시정지 아이콘 (탭하면 일시정지)
   _drawPauseButton(ctx) {
-    // 화면 우측 상단에 작은 II 아이콘
-    const bx = W - 18, by = 4, bw = 14, bh = 14;
-    // 영역 저장 (탭 감지용)
+    const bx = 5, by = 4, bw = 16, bh = 16;
     this._pauseBtn = { x: bx, y: by, w: bw, h: bh };
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
     ctx.fillRect(bx, by, bw, bh);
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 1;
     ctx.strokeRect(bx, by, bw, bh);
-    // 일시정지 또는 재생 아이콘
     ctx.fillStyle = '#fff';
     if (this.paused) {
       // 재생 삼각형
       ctx.beginPath();
-      ctx.moveTo(bx + 4, by + 3);
-      ctx.lineTo(bx + 11, by + 7);
-      ctx.lineTo(bx + 4, by + 11);
+      ctx.moveTo(bx + 5, by + 4);
+      ctx.lineTo(bx + 12, by + 8);
+      ctx.lineTo(bx + 5, by + 12);
       ctx.closePath();
       ctx.fill();
     } else {
-      // 일시정지 || 두 줄
-      ctx.fillRect(bx + 4, by + 3, 2, 8);
-      ctx.fillRect(bx + 8, by + 3, 2, 8);
+      // 일시정지 ||
+      ctx.fillRect(bx + 5, by + 4, 2, 8);
+      ctx.fillRect(bx + 9, by + 4, 2, 8);
     }
   }
 
@@ -445,7 +446,7 @@ export class GameScene {
   _drawHUD(ctx) {
     // HUD 배경 (가독성)
     ctx.fillStyle = 'rgba(0, 16, 32, 0.55)';
-    ctx.fillRect(0, 0, W, 30);
+    ctx.fillRect(0, 0, W, 32);
 
     ctx.font = 'bold 11px "Courier New", monospace';
     ctx.fillStyle = '#fff';
@@ -453,42 +454,46 @@ export class GameScene {
     ctx.lineWidth = 2;
     const drawText = (s, x, y) => { ctx.strokeText(s, x, y); ctx.fillText(s, x, y); };
 
-    // SCORE
-    drawText(`SCORE ${String(this.score).padStart(6, '0')}`, 6, 13);
+    // 좌측: SCORE / LIFE (일시정지 버튼 옆)
+    drawText(`SCORE ${String(this.score).padStart(6, '0')}`, 26, 13);
 
-    // LIFE — 하트 아이콘으로
-    drawText('LIFE', 6, 25);
-    this._drawHearts(ctx, 42, 18, this.lives);
+    // LIFE — 텍스트 + 하트 (세로 중앙 정렬)
+    const lifeY = 25; // 텍스트 베이스라인
+    drawText('LIFE', 26, lifeY);
+    // 하트 중심 y를 텍스트 시각 중앙에 맞춤 (11px 폰트의 중심은 약 y-3)
+    this._drawHearts(ctx, 60, lifeY - 4, this.lives);
 
-    // STAGE
+    // 우측: STAGE / PWR / SHIELD (textAlign right)
     ctx.textAlign = 'right';
     drawText('STAGE 1', W - 6, 13);
-
-    // 파워업 상태
-    if (this.player.power >= 1) {
-      ctx.fillStyle = '#ff8080';
-      drawText('PWR', W - 6, 25);
-      ctx.fillStyle = '#fff';
+    // 효과 표시
+    const effectParts = [];
+    if (this.player.power >= 1 && this.player.powerTime > 0) {
+      effectParts.push({ text: `PWR ${Math.ceil(this.player.powerTime)}s`, color: '#ff8080' });
     }
     if (this.player.shieldTime > 0) {
-      ctx.fillStyle = '#80ccff';
-      drawText(`SHIELD ${this.player.shieldTime.toFixed(1)}`, W - 50, 25);
+      effectParts.push({ text: `SHIELD ${Math.ceil(this.player.shieldTime)}s`, color: '#80ccff' });
+    }
+    let rightX = W - 6;
+    for (const part of effectParts) {
+      ctx.fillStyle = part.color;
+      drawText(part.text, rightX, 25);
+      // 다음 효과는 왼쪽으로
+      rightX -= ctx.measureText(part.text).width + 10;
       ctx.fillStyle = '#fff';
     }
     ctx.textAlign = 'left';
   }
 
-  _drawHearts(ctx, x, y, count) {
+  _drawHearts(ctx, x, yCenter, count) {
     for (let i = 0; i < count; i++) {
-      this._drawHeart(ctx, x + i * 12, y, 8, '#ff5070');
+      this._drawHeart(ctx, x + i * 11, yCenter, 8, '#ff5070');
     }
   }
 
   _drawHeart(ctx, cx, cy, size, color) {
-    // 픽셀풍 하트 — 작은 사각형 조합
     ctx.fillStyle = color;
     const s = size / 8;
-    // 8x7 픽셀 하트 패턴
     const pattern = [
       [0,1,1,0,0,1,1,0],
       [1,1,1,1,1,1,1,1],
@@ -497,10 +502,12 @@ export class GameScene {
       [0,0,1,1,1,1,0,0],
       [0,0,0,1,1,0,0,0],
     ];
+    const offsetX = -size / 2;
+    const offsetY = -(pattern.length * s) / 2;
     for (let py = 0; py < pattern.length; py++) {
       for (let px = 0; px < pattern[py].length; px++) {
         if (pattern[py][px]) {
-          ctx.fillRect(cx + px * s - size/2, cy + py * s - size/2, s, s);
+          ctx.fillRect(cx + px * s + offsetX, cy + py * s + offsetY, s, s);
         }
       }
     }
