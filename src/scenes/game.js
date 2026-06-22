@@ -9,6 +9,7 @@ import { makeEnemy, resetEnemy, updateEnemy, drawEnemy } from '../entities/enemy
 import { makeStarfish, resetStarfish, updateStarfish, drawStarfish, hitStarfish, currentColor } from '../entities/powerup.js';
 import { makeOption, resetOption, updateOption, drawOption } from '../entities/option.js';
 import { makeParticle, updateParticle, drawParticle, explodeSmall, explodeBig } from '../entities/particle.js';
+import { makeLifeItem, resetLifeItem, updateLifeItem, drawLifeItem } from '../entities/lifeitem.js';
 import { makeBoss, spawnBoss, updateBoss, drawBoss, damageBoss } from '../entities/boss.js';
 import { STAGE1 } from '../stages/stage1.js';
 
@@ -27,6 +28,7 @@ export class GameScene {
     this.starfish = new Pool(makeStarfish, POOL.powerup);
     this.options = new Pool(makeOption, POOL.option);
     this.particles = new Pool(makeParticle, POOL.particle);
+    this.lifeItems = new Pool(makeLifeItem, 3);
     this.boss = makeBoss();
 
     this.terrain = new Terrain(STAGE1.terrain, STAGE1.terrain[STAGE1.terrain.length - 1].x);
@@ -114,15 +116,32 @@ export class GameScene {
     // 파티클
     this.particles.forEach(p => updateParticle(p, dt));
 
+    // 라이프 아이템
+    this.lifeItems.forEach(item => updateLifeItem(item, dt));
+    if (this.player.alive) {
+      this.lifeItems.forEach(item => {
+        if (!item.active) return;
+        const dx = item.x - this.player.x, dy = item.y - this.player.y;
+        if (dx*dx + dy*dy <= (12 + PLAYER.hitRadius)**2) {
+          item.active = false;
+          this.lives += 1;
+          this.showMessage('EXTRA LIFE!', 1.5);
+          explodeSmall(this.particles, item.x, item.y, '#cc44aa');
+        }
+      });
+    }
+
     // 보스
     if (this.phase === PHASE_BOSS || this.boss.dying > 0) {
       updateBoss(this.boss, dt, this.player, this.enemyBullets, this.particles);
-      // 보스 사망 처리
       if (!this.boss.active && this.phase === PHASE_BOSS) {
         this.phase = PHASE_CLEAR;
         this.score += this.boss.points;
         this.clearTimer = 3.0;
         this.showMessage('STAGE CLEAR!', 3.0);
+        // 라이프 아이템 드랍
+        const li = this.lifeItems.spawn();
+        if (li) resetLifeItem(li, this.boss.x, this.boss.y);
       }
     }
 
@@ -238,8 +257,14 @@ export class GameScene {
         const dx = b.x - p.x, dy = b.y - p.y;
         if (dx * dx + dy * dy <= (PLAYER.hitRadius + BULLET.radius) ** 2) {
           b.active = false;
-          if (p.shieldTime <= 0) this._hitPlayer();
-          else explodeSmall(this.particles, b.x, b.y, '#88ccff');
+          if (p.shieldTime <= 0) {
+            this._hitPlayer();
+          } else {
+            // 실드가 공격 1회 흡수 후 소멸
+            p.shieldTime = 0;
+            explodeSmall(this.particles, b.x, b.y, '#88ccff');
+            this.showMessage('SHIELD BREAK!', 0.8);
+          }
         }
       });
     }
@@ -303,7 +328,7 @@ export class GameScene {
       case 'red':
         this.player.power = 1;
         this.player.powerTime += POWER_DURATION;
-        this.showMessage(`POWER UP ${Math.ceil(this.player.powerTime)}s`, 1.0);
+        this.showMessage('POWER UP', 1.0);
         break;
       case 'yellow': {
         if (this.optionCount < OPTION_DRAW.maxCount) {
@@ -322,7 +347,7 @@ export class GameScene {
       case 'blue':
         // 누적 연장 (덮어쓰기 X)
         this.player.shieldTime += SHIELD_DURATION;
-        this.showMessage(`SHIELD ${Math.ceil(this.player.shieldTime)}s`, 1.0);
+        this.showMessage('SHIELD', 1.0);
         break;
       case 'green':
         this.bombFlash = 1.0;
@@ -359,6 +384,7 @@ export class GameScene {
 
     this.enemies.forEach(e => drawEnemy(ctx, e));
     this.starfish.forEach(s => drawStarfish(ctx, s));
+    this.lifeItems.forEach(item => drawLifeItem(ctx, item));
     this.options.forEach(o => drawOption(ctx, o));
     drawPlayer(ctx, this.player);
     this.bullets.forEach(b => drawBullet(ctx, b));
@@ -470,10 +496,10 @@ export class GameScene {
     // 효과 표시
     const effectParts = [];
     if (this.player.power >= 1 && this.player.powerTime > 0) {
-      effectParts.push({ text: QA_MODE ? 'PWR ∞' : `PWR ${Math.ceil(this.player.powerTime)}s`, color: '#ff8080' });
+      effectParts.push({ text: 'PWR', color: '#ff8080' });
     }
     if (this.player.shieldTime > 0) {
-      effectParts.push({ text: QA_MODE ? 'SHIELD ∞' : `SHIELD ${Math.ceil(this.player.shieldTime)}s`, color: '#80ccff' });
+      effectParts.push({ text: 'SHIELD', color: '#80ccff' });
     }
     let rightX = W - 6;
     for (const part of effectParts) {

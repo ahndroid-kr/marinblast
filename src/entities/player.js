@@ -42,16 +42,15 @@ export function updatePlayer(p, input, dt) {
 
   p.fireTimer -= dt;
   if (!QA_MODE) {
-    // 일반 모드: 시간 제한 적용
     if (p.shieldTime > 0) p.shieldTime -= dt;
     if (p.powerTime > 0) {
       p.powerTime -= dt;
       if (p.powerTime <= 0) { p.powerTime = 0; p.power = 0; }
     }
   } else {
-    // QA 모드: 타이머 감소 안 함 (한번 먹으면 피격 전까지 유지)
-    if (p.shieldTime > 0) p.shieldTime = 999;
+    // QA 모드: 파워업은 영구, 실드는 피격 시 소모(player.js에서 건드리지 않음 — game.js에서 처리)
     if (p.power > 0) p.powerTime = 999;
+    // 실드는 타이머 감소 안 함 (하지만 피격 시 game.js에서 0으로 클리어)
   }
   if (p.invulnAfterHit > 0) p.invulnAfterHit -= dt;
 }

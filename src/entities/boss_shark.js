@@ -184,7 +184,7 @@ export function damageBossShark(b, dmg, particlePool) {
   if (b.dying > 0 || b.intro > 0 || b.isDashing) return false;
   b.hp -= dmg;
   if (b.hp <= 0) {
-    b.dying = 2.2;
+    b.dying = 3.5;
     return true;
   }
   return false;
@@ -197,7 +197,13 @@ export function drawBossShark(ctx, b) {
     : assets.boss_shark;
 
   let alpha = 1;
-  if (b.dying > 0) alpha = Math.min(1, b.dying / 1.5);
+  if (b.dying > 0) {
+    if (b.dying > 1.5) {
+      alpha = (Math.floor(b.dying * 12) % 2 === 0) ? 0.3 : 1;
+    } else {
+      alpha = b.dying / 1.5;
+    }
+  }
   if (b.intro > 0) alpha = Math.min(1, (2.0 - b.intro) / 2.0);
   // 돌진 중 약간 반투명
   if (b.isDashing) alpha = 0.85;

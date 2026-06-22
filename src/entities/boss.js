@@ -127,7 +127,7 @@ export function damageBoss(b, dmg, particlePool) {
   if (b.dying > 0 || b.intro > 0) return false;
   b.hp -= dmg;
   if (b.hp <= 0) {
-    b.dying = 2.0;
+    b.dying = 3.5; // 더 긴 사망 연출
     return true;
   }
   return false;
@@ -135,12 +135,15 @@ export function damageBoss(b, dmg, particlePool) {
 
 export function drawBoss(ctx, b) {
   if (!b.active) return;
-  // 사망 중에는 죽은 보스 이미지, 아니면 일반 이미지
-  const img = (b.dying > 0) ? (assets.boss_octopus_dead || assets.boss_octopus) : assets.boss_octopus;
+  const img = (b.dying > 0) ? assets.boss_octopus_dead : assets.boss_octopus;
   let alpha = 1;
   if (b.dying > 0) {
-    // 사망 중 깜박임 줄이고, 페이드아웃으로
-    alpha = Math.min(1, b.dying / 1.5);
+    // 앞 2초: 깜박임, 마지막 1.5초: 페이드아웃
+    if (b.dying > 1.5) {
+      alpha = (Math.floor(b.dying * 12) % 2 === 0) ? 0.3 : 1;
+    } else {
+      alpha = b.dying / 1.5;
+    }
   }
   if (b.intro > 0) alpha = Math.min(1, (1.8 - b.intro) / 1.8);
 

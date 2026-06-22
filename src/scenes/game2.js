@@ -9,6 +9,7 @@ import { makeEnemy2, resetEnemy2, updateEnemy2, drawEnemy2, canDamageEnemy2 } fr
 import { makeStarfish, resetStarfish, updateStarfish, drawStarfish, hitStarfish, currentColor } from '../entities/powerup.js';
 import { makeOption, resetOption, updateOption, drawOption } from '../entities/option.js';
 import { makeParticle, updateParticle, drawParticle, explodeSmall, explodeBig } from '../entities/particle.js';
+import { makeLifeItem, resetLifeItem, updateLifeItem, drawLifeItem } from '../entities/lifeitem.js';
 import { makeBossShark, spawnBossShark, updateBossShark, drawBossShark, damageBossShark } from '../entities/boss_shark.js';
 import { STAGE2 } from '../stages/stage2.js';
 
@@ -31,6 +32,7 @@ export class Game2Scene {
     this.starfish = new Pool(makeStarfish, POOL.powerup);
     this.options = new Pool(makeOption, POOL.option);
     this.particles = new Pool(makeParticle, POOL.particle);
+    this.lifeItems = new Pool(makeLifeItem, 3);
     this.boss = makeBossShark();
 
     this.terrain = new Terrain(STAGE2.terrain, STAGE2.terrain[STAGE2.terrain.length-1].x);
@@ -105,6 +107,19 @@ export class Game2Scene {
     this.enemies.forEach(e => updateEnemy2(e, dt, this.player, this.enemyBullets));
     this.starfish.forEach(s => updateStarfish(s, dt));
     this.particles.forEach(p => updateParticle(p, dt));
+    this.lifeItems.forEach(item => updateLifeItem(item, dt));
+    if (this.player.alive) {
+      this.lifeItems.forEach(item => {
+        if (!item.active) return;
+        const dx = item.x - this.player.x, dy = item.y - this.player.y;
+        if (dx*dx + dy*dy <= (12 + PLAYER.hitRadius)**2) {
+          item.active = false;
+          this.lives += 1;
+          this.showMessage('EXTRA LIFE!', 1.5);
+          explodeSmall(this.particles, item.x, item.y, '#cc44aa');
+        }
+      });
+    }
 
     if (this.phase === PHASE_BOSS || this.boss.dying > 0) {
       updateBossShark(this.boss, dt, this.player, this.enemyBullets, this.particles);
@@ -113,6 +128,8 @@ export class Game2Scene {
         this.score += this.boss.points;
         this.clearTimer = 3.0;
         this.showMessage('STAGE 2 CLEAR!', 3.0);
+        const li = this.lifeItems.spawn();
+        if (li) resetLifeItem(li, this.boss.x, this.boss.y);
       }
     }
 
@@ -211,8 +228,13 @@ export class Game2Scene {
         const dx = b.x - p.x, dy = b.y - p.y;
         if (dx*dx + dy*dy <= (PLAYER.hitRadius + BULLET.radius)**2) {
           b.active = false;
-          if (p.shieldTime <= 0) this._hitPlayer();
-          else explodeSmall(this.particles, b.x, b.y, '#88ccff');
+          if (p.shieldTime <= 0) {
+            this._hitPlayer();
+          } else {
+            p.shieldTime = 0;
+            explodeSmall(this.particles, b.x, b.y, '#88ccff');
+            this.showMessage('SHIELD BREAK!', 0.8);
+          }
         }
       });
     }
@@ -270,7 +292,7 @@ export class Game2Scene {
       case 'pink': this.score += 1000; this.showMessage('+1000', 1.0); break;
       case 'red':
         p.power = 1; p.powerTime += POWER_DURATION;
-        this.showMessage(`POWER UP ${Math.ceil(p.powerTime)}s`, 1.0); break;
+        this.showMessage('POWER UP', 1.0); break;
       case 'yellow':
         if (this.optionCount < OPTION_DRAW.maxCount) {
           const o = this.options.spawn();
@@ -279,7 +301,7 @@ export class Game2Scene {
         break;
       case 'blue':
         p.shieldTime += SHIELD_DURATION;
-        this.showMessage(`SHIELD ${Math.ceil(p.shieldTime)}s`, 1.0); break;
+        this.showMessage('SHIELD', 1.0); break;
       case 'green':
         this.bombFlash = 1.0;
         this.enemies.forEach(e => { this.score += e.points; explodeSmall(this.particles, e.x, e.y, '#80ff80'); e.active = false; });
@@ -307,6 +329,7 @@ export class Game2Scene {
     drawBossShark(ctx, this.boss);
     this.enemies.forEach(e => drawEnemy2(ctx, e));
     this.starfish.forEach(s => drawStarfish(ctx, s));
+    this.lifeItems.forEach(item => drawLifeItem(ctx, item));
     this.options.forEach(o => drawOption(ctx, o));
     drawPlayer(ctx, this.player);
     this.bullets.forEach(b => drawBullet(ctx, b));
@@ -354,14 +377,10 @@ export class Game2Scene {
     ctx.textAlign = 'right';
     dt('STAGE 2', W-6, 13);
     if (this.player.power >= 1 && this.player.powerTime > 0) {
-      ctx.fillStyle = '#ff8080';
-      dt(QA_MODE ? 'PWR ∞' : `PWR ${Math.ceil(this.player.powerTime)}s`, W-6, 25);
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = '#ff8080'; dt('PWR', W-6, 25); ctx.fillStyle = '#fff';
     }
     if (this.player.shieldTime > 0) {
-      ctx.fillStyle = '#80ccff';
-      dt(QA_MODE ? 'SHIELD ∞' : `SHIELD ${Math.ceil(this.player.shieldTime)}s`, W-80, 25);
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = '#80ccff'; dt('SHIELD', W-56, 25); ctx.fillStyle = '#fff';
     }
     ctx.textAlign = 'left';
   }

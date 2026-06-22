@@ -3,6 +3,7 @@ import optionUrl from './assets/option.png';
 import bgUrl from './assets/background.png';
 import midUrl from './assets/parallax_mid.png';
 import bossUrl from './assets/boss_octopus.png';
+import bossDeadUrl from './assets/boss_octopus_dead.png';
 import starPinkUrl from './assets/star_pink.png';
 import starRedUrl from './assets/star_red.png';
 import starYellowUrl from './assets/star_yellow.png';
@@ -17,6 +18,7 @@ import bossSharkDeadUrl from './assets/boss_shark_dead.png';
 import mirugaiUrl from './assets/enemy_mirugai.png';
 import hirameUrl from './assets/enemy_hirame.png';
 import buriUrl from './assets/enemy_buri.png';
+import energyPotionUrl from './assets/energy_potion.png';
 import plant00 from './assets/plant_00.png';
 import plant01 from './assets/plant_01.png';
 import plant02 from './assets/plant_02.png';
@@ -34,8 +36,10 @@ const URLS = {
   player: playerUrl, option: optionUrl,
   background: bgUrl, parallax_mid: midUrl,
   boss_octopus: bossUrl,
+  boss_octopus_dead: bossDeadUrl,
   boss_shark: bossSharkUrl,
   boss_shark_dead: bossSharkDeadUrl,
+  energy_potion: energyPotionUrl,
   star_pink: starPinkUrl, star_red: starRedUrl,
   star_yellow: starYellowUrl, star_blue: starBlueUrl, star_green: starGreenUrl,
   enemy_anchovy: anchovyUrl, enemy_shrimp: shrimpUrl, enemy_mackerel: mackerelUrl,
@@ -79,6 +83,4 @@ export async function loadAssets(onProgress) {
     done++;
     if (onProgress) onProgress(done, entries.length);
   }));
-  // boss_octopus_dead: 있으면 로드, 없으면 일반 보스로
-  assets.boss_octopus_dead = assets.boss_octopus;
 }
