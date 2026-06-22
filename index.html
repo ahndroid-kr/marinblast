@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>마린 블라스트</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%;
+      background: #000;
+      overflow: hidden;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, system-ui, sans-serif;
+    }
+    #stage {
+      position: relative;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    canvas {
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      background: #001830;
+    }
+    #ui-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+    }
+    .modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 12, 28, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+    }
+    .modal.show { display: flex; }
+    .modal-box {
+      background: #001a30;
+      border: 2px solid #2aa;
+      padding: 20px 24px;
+      min-width: 260px;
+      max-width: 90%;
+      text-align: center;
+      color: #fff;
+    }
+    .modal-box h2 { margin-bottom: 12px; color: #ffd; font-size: 18px; }
+    .modal-box p { margin-bottom: 12px; font-size: 13px; line-height: 1.5; }
+    .modal-box input {
+      width: 100%; padding: 8px;
+      background: #002240; border: 1px solid #2aa;
+      color: #fff; font-family: inherit; font-size: 14px;
+      margin-bottom: 12px;
+    }
+    .modal-box button {
+      padding: 8px 16px;
+      background: #2aa; border: none; color: #001830;
+      font-weight: bold; cursor: pointer;
+      font-family: inherit;
+    }
+    .modal-box button:hover { background: #3cc; }
+    .leaderboard {
+      text-align: left;
+      max-height: 240px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+      font-size: 12px;
+    }
+    .leaderboard .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px solid #024;
+    }
+    .leaderboard .row.you { color: #ff6; }
+  </style>
+</head>
+<body>
+  <div id="stage">
+    <canvas id="game"></canvas>
+    <div id="ui-overlay">
+      <div id="modal-name" class="modal">
+        <div class="modal-box">
+          <h2>GAME OVER</h2>
+          <p>Score: <span id="final-score">0</span></p>
+          <input id="player-name" type="text" maxlength="12" placeholder="이름 (최대 12자)" />
+          <button id="submit-score">기록 등록</button>
+        </div>
+      </div>
+      <div id="modal-board" class="modal">
+        <div class="modal-box">
+          <h2>RANKING</h2>
+          <div id="board-list" class="leaderboard">로딩 중...</div>
+          <button id="board-restart">다시 시작</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
