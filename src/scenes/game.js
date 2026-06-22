@@ -1,5 +1,5 @@
 // 메인 게임 씬. 잡몹 구간 → 보스 등장 → 클리어.
-import { W, H, BULLET, POOL, PLAYER, SHIELD_DURATION, POWER_DURATION, OPTION_DRAW } from '../config.js';
+import { W, H, BULLET, POOL, PLAYER, SHIELD_DURATION, POWER_DURATION, OPTION_DRAW, QA_MODE } from '../config.js';
 import { Pool } from '../pool.js';
 import { Terrain } from '../terrain.js';
 import { Parallax } from '../parallax.js';
@@ -467,18 +467,18 @@ export class GameScene {
     ctx.textAlign = 'right';
     drawText('STAGE 1', W - 6, 13);
     // 효과 표시
+    // 효과 표시
     const effectParts = [];
     if (this.player.power >= 1 && this.player.powerTime > 0) {
-      effectParts.push({ text: `PWR ${Math.ceil(this.player.powerTime)}s`, color: '#ff8080' });
+      effectParts.push({ text: QA_MODE ? 'PWR ∞' : `PWR ${Math.ceil(this.player.powerTime)}s`, color: '#ff8080' });
     }
     if (this.player.shieldTime > 0) {
-      effectParts.push({ text: `SHIELD ${Math.ceil(this.player.shieldTime)}s`, color: '#80ccff' });
+      effectParts.push({ text: QA_MODE ? 'SHIELD ∞' : `SHIELD ${Math.ceil(this.player.shieldTime)}s`, color: '#80ccff' });
     }
     let rightX = W - 6;
     for (const part of effectParts) {
       ctx.fillStyle = part.color;
       drawText(part.text, rightX, 25);
-      // 다음 효과는 왼쪽으로
       rightX -= ctx.measureText(part.text).width + 10;
       ctx.fillStyle = '#fff';
     }

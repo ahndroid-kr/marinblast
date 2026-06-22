@@ -1,4 +1,4 @@
-import { W, H, PLAYER, BULLET } from '../config.js';
+import { W, H, PLAYER, BULLET, OPTION_DRAW, QA_MODE } from '../config.js';
 import { flipped } from '../assetManager.js';
 
 export function makePlayer() {
@@ -41,13 +41,17 @@ export function updatePlayer(p, input, dt) {
   if (p.history.length > p.historyMax) p.history.length = p.historyMax;
 
   p.fireTimer -= dt;
-  if (p.shieldTime > 0) p.shieldTime -= dt;
-  if (p.powerTime > 0) {
-    p.powerTime -= dt;
-    if (p.powerTime <= 0) {
-      p.powerTime = 0;
-      p.power = 0;
+  if (!QA_MODE) {
+    // 일반 모드: 시간 제한 적용
+    if (p.shieldTime > 0) p.shieldTime -= dt;
+    if (p.powerTime > 0) {
+      p.powerTime -= dt;
+      if (p.powerTime <= 0) { p.powerTime = 0; p.power = 0; }
     }
+  } else {
+    // QA 모드: 타이머 감소 안 함 (한번 먹으면 피격 전까지 유지)
+    if (p.shieldTime > 0) p.shieldTime = 999;
+    if (p.power > 0) p.powerTime = 999;
   }
   if (p.invulnAfterHit > 0) p.invulnAfterHit -= dt;
 }

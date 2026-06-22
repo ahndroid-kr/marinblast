@@ -1,5 +1,5 @@
 // 스테이지 2 씬 — 구조는 game.js와 동일, 적/보스만 교체
-import { W, H, BULLET, POOL, PLAYER, SHIELD_DURATION, POWER_DURATION, OPTION_DRAW } from '../config.js';
+import { W, H, BULLET, POOL, PLAYER, SHIELD_DURATION, POWER_DURATION, OPTION_DRAW, QA_MODE } from '../config.js';
 import { Pool } from '../pool.js';
 import { Terrain } from '../terrain.js';
 import { Parallax } from '../parallax.js';
@@ -354,10 +354,14 @@ export class Game2Scene {
     ctx.textAlign = 'right';
     dt('STAGE 2', W-6, 13);
     if (this.player.power >= 1 && this.player.powerTime > 0) {
-      ctx.fillStyle = '#ff8080'; dt(`PWR ${Math.ceil(this.player.powerTime)}s`, W-6, 25); ctx.fillStyle = '#fff';
+      ctx.fillStyle = '#ff8080';
+      dt(QA_MODE ? 'PWR ∞' : `PWR ${Math.ceil(this.player.powerTime)}s`, W-6, 25);
+      ctx.fillStyle = '#fff';
     }
     if (this.player.shieldTime > 0) {
-      ctx.fillStyle = '#80ccff'; dt(`SHIELD ${Math.ceil(this.player.shieldTime)}s`, W-80, 25); ctx.fillStyle = '#fff';
+      ctx.fillStyle = '#80ccff';
+      dt(QA_MODE ? 'SHIELD ∞' : `SHIELD ${Math.ceil(this.player.shieldTime)}s`, W-80, 25);
+      ctx.fillStyle = '#fff';
     }
     ctx.textAlign = 'left';
   }
