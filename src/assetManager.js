@@ -42,6 +42,7 @@ import plant10 from './assets/plant_10.png';
 import plant11 from './assets/plant_11.png';
 
 const URLS = {
+  title_logo: titleLogoUrl,
   player: playerUrl, option: optionUrl,
   background: bgUrl, parallax_mid: midUrl,
   boss_octopus: bossUrl,
