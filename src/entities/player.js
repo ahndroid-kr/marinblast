@@ -72,11 +72,34 @@ export function drawPlayer(ctx, p) {
   if (p.invulnAfterHit > 0 && Math.floor(p.invulnAfterHit * 20) % 2 === 0) return;
 
   if (p.shieldTime > 0) {
-    ctx.strokeStyle = `rgba(120, 220, 255, ${0.5 + Math.sin(p.shieldTime * 12) * 0.3})`;
+    // 강화된 실드 — 굵은 외곽 링 + 안쪽 글로우 + 회전하는 입자
+    const pulse = 0.7 + Math.sin(p.shieldTime * 10) * 0.3;
+    // 바깥 글로우
+    ctx.fillStyle = `rgba(100, 180, 255, ${0.15 * pulse})`;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 26, 0, Math.PI * 2);
+    ctx.fill();
+    // 굵은 외곽선
+    ctx.strokeStyle = `rgba(140, 230, 255, ${pulse})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 22, 0, Math.PI * 2);
+    ctx.stroke();
+    // 안쪽 가는 링
+    ctx.strokeStyle = `rgba(255, 255, 255, ${0.6 * pulse})`;
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 16, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, 18, 0, Math.PI * 2);
     ctx.stroke();
+    // 회전하는 입자 4개
+    const rotAngle = p.shieldTime * 3;
+    for (let i = 0; i < 4; i++) {
+      const a = rotAngle + i * Math.PI / 2;
+      const px = p.x + Math.cos(a) * 22;
+      const py = p.y + Math.sin(a) * 22;
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(px - 1.5, py - 1.5, 3, 3);
+    }
   }
 
   const img = flipped.player; // 좌우 반전된 (오른쪽 보는) 잠수함

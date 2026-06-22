@@ -49,6 +49,7 @@ export class GameScene {
     this.phase = PHASE_MOB;
     this.bossWarnTimer = 0;
     this.clearTimer = 0;
+    this.paused = false;
   }
 
   showMessage(text, duration = 1.5) {
@@ -58,6 +59,12 @@ export class GameScene {
 
   update(dt, input) {
     if (this.done) return;
+
+    // 일시정지 토글 (사망/클리어 중에는 토글 불가)
+    if (input.pauseEdge && this.player.alive && this.phase !== PHASE_CLEAR) {
+      this.paused = !this.paused;
+    }
+    if (this.paused) return;
 
     // 카메라 스크롤 (보스 페이즈에서는 정지)
     if (this.phase === PHASE_MOB || this.phase === PHASE_BOSS_WARN) {
@@ -367,6 +374,9 @@ export class GameScene {
 
     this._drawHUD(ctx);
 
+    // 일시정지 버튼 (우측 상단)
+    this._drawPauseButton(ctx);
+
     if (this.messageTime > 0) {
       ctx.font = 'bold 14px "Courier New", monospace';
       ctx.fillStyle = this.phase === PHASE_BOSS_WARN ? '#ff4040' : '#fff';
@@ -377,27 +387,122 @@ export class GameScene {
       ctx.fillText(this.message, W / 2, H / 2);
       ctx.textAlign = 'left';
     }
+
+    // 일시정지 오버레이
+    if (this.paused) {
+      ctx.fillStyle = 'rgba(0, 12, 28, 0.7)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.font = 'bold 28px "Courier New", monospace';
+      ctx.fillStyle = '#80e0ff';
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 4;
+      ctx.textAlign = 'center';
+      ctx.strokeText('PAUSED', W / 2, H / 2);
+      ctx.fillText('PAUSED', W / 2, H / 2);
+      ctx.font = '10px "Courier New", monospace';
+      ctx.fillStyle = '#fff';
+      ctx.strokeText('P / ESC / TAP TO RESUME', W / 2, H / 2 + 24);
+      ctx.fillText('P / ESC / TAP TO RESUME', W / 2, H / 2 + 24);
+      ctx.textAlign = 'left';
+    }
+  }
+
+  // 우측 상단 일시정지 아이콘 (탭하면 일시정지)
+  _drawPauseButton(ctx) {
+    // 화면 우측 상단에 작은 II 아이콘
+    const bx = W - 18, by = 4, bw = 14, bh = 14;
+    // 영역 저장 (탭 감지용)
+    this._pauseBtn = { x: bx, y: by, w: bw, h: bh };
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+    ctx.fillRect(bx, by, bw, bh);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(bx, by, bw, bh);
+    // 일시정지 또는 재생 아이콘
+    ctx.fillStyle = '#fff';
+    if (this.paused) {
+      // 재생 삼각형
+      ctx.beginPath();
+      ctx.moveTo(bx + 4, by + 3);
+      ctx.lineTo(bx + 11, by + 7);
+      ctx.lineTo(bx + 4, by + 11);
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      // 일시정지 || 두 줄
+      ctx.fillRect(bx + 4, by + 3, 2, 8);
+      ctx.fillRect(bx + 8, by + 3, 2, 8);
+    }
+  }
+
+  // 캔버스 좌표(터치)가 일시정지 버튼 위에 있는지
+  hitPauseButton(cx, cy) {
+    const b = this._pauseBtn;
+    if (!b) return false;
+    return cx >= b.x && cx <= b.x + b.w && cy >= b.y && cy <= b.y + b.h;
   }
 
   _drawHUD(ctx) {
-    ctx.font = '8px "Courier New", monospace';
+    // HUD 배경 (가독성)
+    ctx.fillStyle = 'rgba(0, 16, 32, 0.55)';
+    ctx.fillRect(0, 0, W, 30);
+
+    ctx.font = 'bold 11px "Courier New", monospace';
     ctx.fillStyle = '#fff';
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 2;
     const drawText = (s, x, y) => { ctx.strokeText(s, x, y); ctx.fillText(s, x, y); };
 
-    drawText(`SCORE  ${String(this.score).padStart(6, '0')}`, 4, 12);
-    drawText(`LIFE   ${this.lives}`, 4, 24);
-    drawText('STAGE 1', W - 60, 12);
+    // SCORE
+    drawText(`SCORE ${String(this.score).padStart(6, '0')}`, 6, 13);
+
+    // LIFE — 하트 아이콘으로
+    drawText('LIFE', 6, 25);
+    this._drawHearts(ctx, 42, 18, this.lives);
+
+    // STAGE
+    ctx.textAlign = 'right';
+    drawText('STAGE 1', W - 6, 13);
+
+    // 파워업 상태
     if (this.player.power >= 1) {
       ctx.fillStyle = '#ff8080';
-      drawText('PWR', W - 60, 24);
+      drawText('PWR', W - 6, 25);
       ctx.fillStyle = '#fff';
     }
     if (this.player.shieldTime > 0) {
       ctx.fillStyle = '#80ccff';
-      drawText(`SH ${this.player.shieldTime.toFixed(1)}`, W - 110, 24);
+      drawText(`SHIELD ${this.player.shieldTime.toFixed(1)}`, W - 50, 25);
       ctx.fillStyle = '#fff';
+    }
+    ctx.textAlign = 'left';
+  }
+
+  _drawHearts(ctx, x, y, count) {
+    for (let i = 0; i < count; i++) {
+      this._drawHeart(ctx, x + i * 12, y, 8, '#ff5070');
+    }
+  }
+
+  _drawHeart(ctx, cx, cy, size, color) {
+    // 픽셀풍 하트 — 작은 사각형 조합
+    ctx.fillStyle = color;
+    const s = size / 8;
+    // 8x7 픽셀 하트 패턴
+    const pattern = [
+      [0,1,1,0,0,1,1,0],
+      [1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1],
+      [0,1,1,1,1,1,1,0],
+      [0,0,1,1,1,1,0,0],
+      [0,0,0,1,1,0,0,0],
+    ];
+    for (let py = 0; py < pattern.length; py++) {
+      for (let px = 0; px < pattern[py].length; px++) {
+        if (pattern[py][px]) {
+          ctx.fillRect(cx + px * s - size/2, cy + py * s - size/2, s, s);
+        }
+      }
     }
   }
 }

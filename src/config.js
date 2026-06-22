@@ -37,7 +37,7 @@ export const POOL = {
 export const STARFISH_COLORS = ['pink', 'red', 'yellow', 'blue', 'green'];
 export const STARFISH_CYCLE_INTERVAL = 1.0;
 export const STARFISH_SPEED = 35;
-export const STARFISH_DRAW_SIZE = 30;
+export const STARFISH_DRAW_SIZE = 21;
 
 export const STARFISH_EFFECT = {
   pink:   { label: '1000pt' },

@@ -20,9 +20,9 @@ export const ENEMY_PRESETS = {
     drawW: 30, drawH: 12,
   },
   shrimp: {
-    hp: 2, spawnVx: -55, radius: 22, fireInterval: 2.0,
+    hp: 2, spawnVx: -55, radius: 5, fireInterval: 2.0,
     points: 200, dropChance: 0.25,
-    drawW: 70, drawH: 58,
+    drawW: 14, drawH: 12,
   },
   mackerel: {
     hp: 3, spawnVx: -140, radius: 22, fireInterval: 3.0,

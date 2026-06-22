@@ -33,6 +33,33 @@ resize();
 
 const input = new Input(canvas);
 
+// 캔버스 클릭/터치 시작 시점에 일시정지 버튼 위에 있는지 확인
+function checkPauseButtonHit(clientX, clientY) {
+  if (!currentScene || !currentScene.hitPauseButton) return false;
+  const rect = canvas.getBoundingClientRect();
+  const cx = ((clientX - rect.left) / rect.width) * W;
+  const cy = ((clientY - rect.top) / rect.height) * H;
+  if (currentScene.hitPauseButton(cx, cy)) {
+    input.triggerPause();
+    return true;
+  }
+  return false;
+}
+
+canvas.addEventListener('touchstart', (e) => {
+  if (e.touches[0] && checkPauseButtonHit(e.touches[0].clientX, e.touches[0].clientY)) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}, { capture: true, passive: false });
+
+canvas.addEventListener('mousedown', (e) => {
+  if (checkPauseButtonHit(e.clientX, e.clientY)) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}, { capture: true });
+
 let currentScene = null;
 
 function startTitle() {

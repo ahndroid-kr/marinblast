@@ -13,6 +13,7 @@ export class Input {
     this.touchActive = false;
     this.touchTarget = { x: 0, y: 0 }; // 캔버스 내부 좌표
     this.anyKeyEdge = false;
+    this.pauseEdge = false;  // 일시정지 토글 (P/ESC 또는 화면 버튼)
 
     this._bindKeys();
     this._bindTouch();
@@ -20,10 +21,12 @@ export class Input {
 
   _bindKeys() {
     window.addEventListener('keydown', (e) => {
+      if (e.repeat) return;
       this.keys.add(e.code);
       if (e.code === 'KeyZ' || e.code === 'Space') this.fire = true;
       if (e.code === 'KeyX') this.bomb = true;
-      this.anyKeyEdge = true;
+      if (e.code === 'KeyP' || e.code === 'Escape') this.pauseEdge = true;
+      else this.anyKeyEdge = true;
       if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) {
         e.preventDefault();
       }
@@ -84,6 +87,12 @@ export class Input {
   endFrame() {
     this.anyKeyEdge = false;
     this.bomb = false;
+    this.pauseEdge = false;
+  }
+
+  // 외부(화면 버튼)에서 일시정지 토글
+  triggerPause() {
+    this.pauseEdge = true;
   }
 
   // 키보드 방향 입력 (-1, 0, 1)
