@@ -31,17 +31,12 @@ export class TitleScene {
       ctx.drawImage(subImg, W / 2 - subW / 2, H - 80 + bob, subW, subH);
     }
 
-    // 타이틀
-    ctx.textAlign = 'center';
-    ctx.font = 'bold 32px "Courier New", monospace';
-    ctx.strokeStyle = '#003050';
-    ctx.lineWidth = 4;
-    ctx.fillStyle = '#80e0ff';
-    ctx.strokeText('MARINE', W / 2, H / 2 - 30);
-    ctx.fillText('MARINE', W / 2, H / 2 - 30);
-    ctx.fillStyle = '#ffcc40';
-    ctx.strokeText('BLAST', W / 2, H / 2 + 4);
-    ctx.fillText('BLAST', W / 2, H / 2 + 4);
+// 타이틀 로고 이미지
+    const logo = assets.title_logo;
+    if (logo) {
+      const lw = 200, lh = Math.round(logo.naturalHeight * (200 / logo.naturalWidth));
+      ctx.drawImage(logo, W / 2 - lw / 2, H / 2 - lh / 2 - 20, lw, lh);
+    }
 
     if (Math.floor(this.t * 2) % 2 === 0) {
       ctx.font = '9px "Courier New", monospace';
