@@ -1,6 +1,7 @@
 import { W, H } from '../config.js';
 import { Parallax } from '../parallax.js';
 import { assets, flipped } from '../assetManager.js';
+import { audio } from '../audio.js';
 
 export class TitleScene {
   constructor(onStart) {
@@ -13,16 +14,18 @@ export class TitleScene {
   update(dt, input) {
     this.t += dt;
     this.scrollX += 30 * dt;
-    if (input.anyKeyEdge) this.onStart();
+    // 브라우저 자동재생 정책: 사용자 첫 인터랙션 후에만 재생 가능
+    if (input.anyKeyEdge) {
+      audio.play('main');
+      this.onStart();
+    }
   }
 
   draw(ctx) {
     this.parallax.draw(ctx, this.scrollX, this.t);
-
     ctx.fillStyle = 'rgba(0, 16, 32, 0.35)';
     ctx.fillRect(0, 0, W, H);
 
-    // 잠수함 데모
     const subImg = flipped.player;
     if (subImg) {
       const subW = 56, subH = 36;
@@ -30,7 +33,6 @@ export class TitleScene {
       ctx.drawImage(subImg, W / 2 - subW / 2, H - 80 + bob, subW, subH);
     }
 
-    // 타이틀 로고 이미지
     ctx.textAlign = 'center';
     const logo = assets.title_logo;
     if (logo) {
@@ -39,8 +41,7 @@ export class TitleScene {
       ctx.drawImage(logo, W / 2 - lw / 2, H / 2 - lh / 2 - 20, lw, lh);
     } else {
       ctx.font = 'bold 32px "Courier New", monospace';
-      ctx.strokeStyle = '#003050';
-      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#003050'; ctx.lineWidth = 4;
       ctx.fillStyle = '#80e0ff';
       ctx.strokeText('MARINE', W / 2, H / 2 - 30);
       ctx.fillText('MARINE', W / 2, H / 2 - 30);
@@ -49,21 +50,17 @@ export class TitleScene {
       ctx.fillText('BLAST', W / 2, H / 2 + 4);
     }
 
-    // PRESS ANY KEY
     if (Math.floor(this.t * 2) % 2 === 0) {
       ctx.font = '9px "Courier New", monospace';
       ctx.fillStyle = '#fff';
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
       ctx.strokeText('PRESS ANY KEY / TOUCH TO START', W / 2, H / 2 + 70);
       ctx.fillText('PRESS ANY KEY / TOUCH TO START', W / 2, H / 2 + 70);
     }
 
-    // 조작 안내
     ctx.font = '7px "Courier New", monospace';
     ctx.fillStyle = '#88aacc';
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
     ctx.strokeText('ARROW/WASD: MOVE   Z/SPACE: SHOOT', W / 2, H - 24);
     ctx.fillText('ARROW/WASD: MOVE   Z/SPACE: SHOOT', W / 2, H - 24);
     ctx.strokeText('TOUCH: DRAG TO MOVE (AUTO FIRE)', W / 2, H - 14);

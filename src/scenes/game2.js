@@ -12,6 +12,7 @@ import { makeParticle, updateParticle, drawParticle, explodeSmall, explodeBig } 
 import { makeLifeItem, resetLifeItem, updateLifeItem, drawLifeItem } from '../entities/lifeitem.js';
 import { makeBossShark, spawnBossShark, updateBossShark, drawBossShark, damageBossShark } from '../entities/boss_shark.js';
 import { STAGE2 } from '../stages/stage2.js';
+import { audio } from '../audio.js';
 
 const PHASE_MOB = 'mob';
 const PHASE_BOSS_WARN = 'boss_warn';
@@ -66,6 +67,8 @@ export class Game2Scene {
     if (this.done) return;
     if (input.pauseEdge && this.player.alive && this.phase !== PHASE_CLEAR) {
       this.paused = !this.paused;
+      if (this.paused) audio.pause();
+      else audio.resume();
     }
     if (this.paused) return;
 
@@ -84,6 +87,7 @@ export class Game2Scene {
       if (this.bossWarnTimer <= 0) {
         this.phase = PHASE_BOSS;
         spawnBossShark(this.boss);
+        audio.play('boss');
       }
     }
 
@@ -128,6 +132,7 @@ export class Game2Scene {
         this.score += this.boss.points;
         this.clearTimer = 3.0;
         this.showMessage('STAGE 2 CLEAR!', 3.0);
+        audio.play('main');
         const li = this.lifeItems.spawn();
         if (li) resetLifeItem(li, this.boss.x, this.boss.y);
       }
@@ -353,15 +358,29 @@ export class Game2Scene {
       ctx.textAlign = 'left';
     }
     if (this.paused) {
-      ctx.fillStyle = 'rgba(0,12,28,0.7)'; ctx.fillRect(0,0,W,H);
-      ctx.font = 'bold 28px "Courier New", monospace';
-      ctx.fillStyle = '#80e0ff'; ctx.strokeStyle = '#000'; ctx.lineWidth = 4;
+      ctx.fillStyle = 'rgba(0,12,28,0.75)'; ctx.fillRect(0,0,W,H);
       ctx.textAlign = 'center';
-      ctx.strokeText('PAUSED', W/2, H/2); ctx.fillText('PAUSED', W/2, H/2);
-      ctx.font = '10px "Courier New", monospace';
-      ctx.fillStyle = '#fff';
-      ctx.strokeText('P / ESC / TAP TO RESUME', W/2, H/2+24);
-      ctx.fillText('P / ESC / TAP TO RESUME', W/2, H/2+24);
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 3;
+      // PAUSED
+      ctx.font = 'bold 20px "Courier New", monospace';
+      ctx.fillStyle = '#80e0ff';
+      ctx.strokeText('PAUSED', W/2, H/2 - 36);
+      ctx.fillText('PAUSED', W/2, H/2 - 36);
+      // BGM 버튼
+      const bgmLabel = audio.isMuted() ? '[  BGM : OFF ]' : '[  BGM : ON  ]';
+      ctx.font = '11px "Courier New", monospace';
+      ctx.fillStyle = audio.isMuted() ? '#888' : '#ffe060';
+      ctx.strokeText(bgmLabel, W/2, H/2 + 2);
+      ctx.fillText(bgmLabel, W/2, H/2 + 2);
+      this._bgmBtn = { x: W/2 - 58, y: H/2 - 14, w: 116, h: 22 };
+      // RESUME
+      ctx.fillStyle = '#80ff80';
+      ctx.strokeText('[ RESUME ]', W/2, H/2 + 30);
+      ctx.fillText('[ RESUME ]', W/2, H/2 + 30);
+      // 안내
+      ctx.font = '7px "Courier New", monospace';
+      ctx.fillStyle = '#668899';
+      ctx.fillText('tap BGM to toggle  /  P or ESC to resume', W/2, H/2 + 50);
       ctx.textAlign = 'left';
     }
   }
@@ -412,6 +431,10 @@ export class Game2Scene {
     }
   }
 
+  hitBgmButton(cx, cy) {
+    const b = this._bgmBtn;
+    return b && this.paused && cx>=b.x && cx<=b.x+b.w && cy>=b.y && cy<=b.y+b.h;
+  }
   hitPauseButton(cx, cy) {
     const b = this._pauseBtn;
     return b && cx>=b.x && cx<=b.x+b.w && cy>=b.y && cy<=b.y+b.h;

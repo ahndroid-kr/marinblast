@@ -12,6 +12,7 @@ import { makeParticle, updateParticle, drawParticle, explodeSmall, explodeBig } 
 import { makeLifeItem, resetLifeItem, updateLifeItem, drawLifeItem } from '../entities/lifeitem.js';
 import { makeBoss, spawnBoss, updateBoss, drawBoss, damageBoss } from '../entities/boss.js';
 import { STAGE1 } from '../stages/stage1.js';
+import { audio } from '../audio.js';
 
 const PHASE_MOB = 'mob';
 const PHASE_BOSS_WARN = 'boss_warn';
@@ -65,6 +66,8 @@ export class GameScene {
     // 일시정지 토글 (사망/클리어 중에는 토글 불가)
     if (input.pauseEdge && this.player.alive && this.phase !== PHASE_CLEAR) {
       this.paused = !this.paused;
+      if (this.paused) audio.pause();
+      else audio.resume();
     }
     if (this.paused) return;
 
@@ -85,6 +88,7 @@ export class GameScene {
       if (this.bossWarnTimer <= 0) {
         this.phase = PHASE_BOSS;
         spawnBoss(this.boss);
+        audio.play('boss');
       }
     }
 
@@ -139,6 +143,7 @@ export class GameScene {
         this.score += this.boss.points;
         this.clearTimer = 3.0;
         this.showMessage('STAGE CLEAR!', 3.0);
+        audio.play('main');
         // 라이프 아이템 드랍
         const li = this.lifeItems.spawn();
         if (li) resetLifeItem(li, this.boss.x, this.boss.y);
@@ -420,24 +425,30 @@ export class GameScene {
 
     // 일시정지 오버레이
     if (this.paused) {
-      ctx.fillStyle = 'rgba(0, 12, 28, 0.7)';
+      ctx.fillStyle = 'rgba(0, 12, 28, 0.75)';
       ctx.fillRect(0, 0, W, H);
-      ctx.font = 'bold 28px "Courier New", monospace';
-      ctx.fillStyle = '#80e0ff';
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 4;
       ctx.textAlign = 'center';
-      ctx.strokeText('PAUSED', W / 2, H / 2);
-      ctx.fillText('PAUSED', W / 2, H / 2);
-      ctx.font = '10px "Courier New", monospace';
-      ctx.fillStyle = '#fff';
-      ctx.strokeText('P / ESC / TAP TO RESUME', W / 2, H / 2 + 24);
-      ctx.fillText('P / ESC / TAP TO RESUME', W / 2, H / 2 + 24);
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 3;
+      ctx.font = 'bold 20px "Courier New", monospace';
+      ctx.fillStyle = '#80e0ff';
+      ctx.strokeText('PAUSED', W/2, H/2 - 36);
+      ctx.fillText('PAUSED', W/2, H/2 - 36);
+      const bgmLabel = audio.isMuted() ? '[  BGM : OFF ]' : '[  BGM : ON  ]';
+      ctx.font = '11px "Courier New", monospace';
+      ctx.fillStyle = audio.isMuted() ? '#888' : '#ffe060';
+      ctx.strokeText(bgmLabel, W/2, H/2 + 2);
+      ctx.fillText(bgmLabel, W/2, H/2 + 2);
+      this._bgmBtn = { x: W/2 - 58, y: H/2 - 14, w: 116, h: 22 };
+      ctx.fillStyle = '#80ff80';
+      ctx.strokeText('[ RESUME ]', W/2, H/2 + 30);
+      ctx.fillText('[ RESUME ]', W/2, H/2 + 30);
+      ctx.font = '7px "Courier New", monospace';
+      ctx.fillStyle = '#668899';
+      ctx.fillText('tap BGM to toggle  /  P or ESC to resume', W/2, H/2 + 50);
       ctx.textAlign = 'left';
     }
   }
 
-  // 좌측 상단 일시정지 아이콘 (탭하면 일시정지)
   _drawPauseButton(ctx) {
     const bx = 5, by = 4, bw = 16, bh = 16;
     this._pauseBtn = { x: bx, y: by, w: bw, h: bh };
@@ -448,7 +459,6 @@ export class GameScene {
     ctx.strokeRect(bx, by, bw, bh);
     ctx.fillStyle = '#fff';
     if (this.paused) {
-      // 재생 삼각형
       ctx.beginPath();
       ctx.moveTo(bx + 5, by + 4);
       ctx.lineTo(bx + 12, by + 8);
@@ -456,13 +466,16 @@ export class GameScene {
       ctx.closePath();
       ctx.fill();
     } else {
-      // 일시정지 ||
       ctx.fillRect(bx + 5, by + 4, 2, 8);
       ctx.fillRect(bx + 9, by + 4, 2, 8);
     }
   }
 
-  // 캔버스 좌표(터치)가 일시정지 버튼 위에 있는지
+  hitBgmButton(cx, cy) {
+    const b = this._bgmBtn;
+    return b && this.paused && cx >= b.x && cx <= b.x + b.w && cy >= b.y && cy <= b.y + b.h;
+  }
+
   hitPauseButton(cx, cy) {
     const b = this._pauseBtn;
     if (!b) return false;
