@@ -1,30 +1,23 @@
 import { W, H, PLAYER, BULLET, OPTION_DRAW, QA_MODE } from '../config.js';
 import { flipped } from '../assetManager.js';
 
-// 터치 시 스프라이트를 손가락 위로 띄우는 오프셋 (px)
-// 히트박스/이동은 실제 p.x/p.y 기준, 그림만 위로 올림
-const TOUCH_DRAW_OFFSET_Y = 48;
-
 export function makePlayer() {
   return {
     x: PLAYER.startX,
     y: PLAYER.startY,
     fireTimer: 0,
     power: 0,
-    powerTime: 0,
+    powerTime: 0,    // 빨강 파워업 잔여 시간 (0이면 power=0)
     shieldTime: 0,
     alive: true,
     invulnAfterHit: 0,
     history: [],
     historyMax: 60,
-    isTouching: false,  // 터치 중인지 여부 (draw에서 오프셋 적용)
   };
 }
 
 export function updatePlayer(p, input, dt) {
   if (!p.alive) return;
-
-  p.isTouching = input.touchActive;
 
   let mx = 0, my = 0;
   if (input.touchActive) {
@@ -55,7 +48,9 @@ export function updatePlayer(p, input, dt) {
       if (p.powerTime <= 0) { p.powerTime = 0; p.power = 0; }
     }
   } else {
+    // QA 모드: 파워업은 영구, 실드는 피격 시 소모(player.js에서 건드리지 않음 — game.js에서 처리)
     if (p.power > 0) p.powerTime = 999;
+    // 실드는 타이머 감소 안 함 (하지만 피격 시 game.js에서 0으로 클리어)
   }
   if (p.invulnAfterHit > 0) p.invulnAfterHit -= dt;
 }
@@ -87,51 +82,43 @@ export function drawPlayer(ctx, p) {
   if (!p.alive) return;
   if (p.invulnAfterHit > 0 && Math.floor(p.invulnAfterHit * 20) % 2 === 0) return;
 
-  // 터치 중이면 스프라이트를 손가락 위로 올려서 그림
-  // 히트박스(p.x/p.y)는 그대로 — 눈에 보이는 위치만 오프셋
-  const drawY = p.isTouching
-    ? Math.max(PLAYER.drawH / 2, p.y - TOUCH_DRAW_OFFSET_Y)
-    : p.y;
-
   if (p.shieldTime > 0) {
+    // 강화된 실드 — 굵은 외곽 링 + 안쪽 글로우 + 회전하는 입자
     const pulse = 0.7 + Math.sin(p.shieldTime * 10) * 0.3;
+    // 바깥 글로우
     ctx.fillStyle = `rgba(100, 180, 255, ${0.15 * pulse})`;
     ctx.beginPath();
-    ctx.arc(p.x, drawY, 26, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, 26, 0, Math.PI * 2);
     ctx.fill();
+    // 굵은 외곽선
     ctx.strokeStyle = `rgba(140, 230, 255, ${pulse})`;
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(p.x, drawY, 22, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, 22, 0, Math.PI * 2);
     ctx.stroke();
+    // 안쪽 가는 링
     ctx.strokeStyle = `rgba(255, 255, 255, ${0.6 * pulse})`;
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.arc(p.x, drawY, 18, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, 18, 0, Math.PI * 2);
     ctx.stroke();
+    // 회전하는 입자 4개
     const rotAngle = p.shieldTime * 3;
     for (let i = 0; i < 4; i++) {
       const a = rotAngle + i * Math.PI / 2;
+      const px = p.x + Math.cos(a) * 22;
+      const py = p.y + Math.sin(a) * 22;
       ctx.fillStyle = '#fff';
-      ctx.fillRect(p.x + Math.cos(a) * 22 - 1.5, drawY + Math.sin(a) * 22 - 1.5, 3, 3);
+      ctx.fillRect(px - 1.5, py - 1.5, 3, 3);
     }
   }
 
-  const img = flipped.player;
+  const img = flipped.player; // 좌우 반전된 (오른쪽 보는) 잠수함
   if (img) {
-    ctx.drawImage(img, p.x - PLAYER.drawW / 2, drawY - PLAYER.drawH / 2, PLAYER.drawW, PLAYER.drawH);
+    ctx.drawImage(img, p.x - PLAYER.drawW / 2, p.y - PLAYER.drawH / 2, PLAYER.drawW, PLAYER.drawH);
   } else {
+    // fallback
     ctx.fillStyle = '#ff80b0';
-    ctx.fillRect(p.x - PLAYER.drawW/2, drawY - PLAYER.drawH/2, PLAYER.drawW, PLAYER.drawH);
-  }
-
-  // 터치 중일 때 실제 히트박스 위치를 작은 점으로 표시 (선택적 — 끄려면 아래 블록 삭제)
-  if (p.isTouching && drawY !== p.y) {
-    ctx.globalAlpha = 0.35;
-    ctx.fillStyle = '#fff';
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
+    ctx.fillRect(p.x - PLAYER.drawW/2, p.y - PLAYER.drawH/2, PLAYER.drawW, PLAYER.drawH);
   }
 }
