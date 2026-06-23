@@ -22,7 +22,6 @@
       align-items: center;
       justify-content: center;
       font-family: -apple-system, system-ui, sans-serif;
-      /* iOS notch / safe-area 무시하고 화면 전체 사용 */
       padding: 0;
     }
     #stage {
@@ -52,29 +51,35 @@
       justify-content: center;
       pointer-events: auto;
       padding: 8px;
+      /* 모달 자체도 스크롤 가능하게 */
+      overflow-y: auto;
     }
     .modal.show { display: flex; }
-.modal-box {
-  background: #001a30;
-  border: 2px solid #2aa;
-  padding: 16px 18px;
-  width: 100%;
-  max-width: 280px;
-  max-height: 85vh;
-  overflow-y: auto;
-  text-align: center;
-  color: #fff;
-}
-    .modal-box h2 { margin-bottom: 10px; color: #ffd; font-size: 18px; }
-    .modal-box p { margin-bottom: 10px; font-size: 13px; line-height: 1.5; }
+    .modal-box {
+      background: #001a30;
+      border: 2px solid #2aa;
+      padding: 16px 18px;
+      width: 100%;
+      max-width: 280px;
+      /* 화면 높이 85% 이내로 제한, 넘치면 내부 스크롤 */
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      color: #fff;
+    }
+    .modal-box h2 { margin-bottom: 10px; color: #ffd; font-size: 18px; flex-shrink: 0; }
+    .modal-box p  { margin-bottom: 10px; font-size: 13px; line-height: 1.5; flex-shrink: 0; }
     .modal-box input {
       width: 100%; padding: 8px;
       background: #002240; border: 1px solid #2aa;
       color: #fff; font-family: inherit; font-size: 14px;
       margin-bottom: 10px;
+      flex-shrink: 0;
     }
     .btn-row {
       display: flex; gap: 8px; justify-content: center;
+      flex-shrink: 0;
     }
     .modal-box button {
       flex: 1;
@@ -84,28 +89,32 @@
       font-family: inherit; font-size: 13px;
       max-width: 130px;
     }
-    .modal-box button.secondary {
-      background: #355; color: #fff;
-    }
+    .modal-box button.secondary { background: #355; color: #fff; }
     .modal-box button:hover { filter: brightness(1.15); }
-.leaderboard {
-  text-align: left;
-  max-height: min(260px, 40vh);
-  overflow-y: auto;
-  overflow-x: hidden;
-  margin-bottom: 12px;
-  font-size: 12px;
-  scrollbar-width: thin;
-  scrollbar-color: #2aa #001a30;
-}
+    .leaderboard {
+      text-align: left;
+      /* flex item이라 남은 공간 채우고 넘치면 스크롤 */
+      flex: 1;
+      min-height: 0;
+      max-height: min(240px, 40vh);
+      overflow-y: auto;
+      overflow-x: hidden;
+      margin-bottom: 12px;
+      font-size: 12px;
+      scrollbar-width: thin;
+      scrollbar-color: #2aa #001a30;
+    }
+    .leaderboard::-webkit-scrollbar { width: 4px; }
+    .leaderboard::-webkit-scrollbar-track { background: #001a30; }
+    .leaderboard::-webkit-scrollbar-thumb { background: #2aa; border-radius: 2px; }
     .leaderboard .row {
       display: flex;
       justify-content: space-between;
       padding: 4px 2px;
       border-bottom: 1px solid #024;
     }
-    .leaderboard .row .rank { color: #8cf; min-width: 22px; }
-    .leaderboard .row .name { flex: 1; padding: 0 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .leaderboard .row .rank  { color: #8cf; min-width: 22px; }
+    .leaderboard .row .name  { flex: 1; padding: 0 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .leaderboard .row .score { color: #ffc; }
     .leaderboard .row.you { background: rgba(80, 200, 255, 0.12); }
     .leaderboard .row.you .name { color: #ff6; font-weight: bold; }
