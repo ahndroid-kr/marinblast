@@ -295,6 +295,28 @@ export class Game4Scene {
     if(this.paused){ctx.beginPath();ctx.moveTo(bx+5,by+4);ctx.lineTo(bx+12,by+8);ctx.lineTo(bx+5,by+12);ctx.closePath();ctx.fill();}
     else{ctx.fillRect(bx+5,by+4,2,8);ctx.fillRect(bx+9,by+4,2,8);}
   }
+
+  _drawHeart(ctx, cx, cy, size, color) {
+    ctx.fillStyle = color;
+    const s = size / 8;
+    const pattern = [
+      [0,1,1,0,0,1,1,0],
+      [1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1],
+      [0,1,1,1,1,1,1,0],
+      [0,0,1,1,1,1,0,0],
+      [0,0,0,1,1,0,0,0],
+    ];
+    const offsetX = -size / 2;
+    const offsetY = -(pattern.length * s) / 2;
+    for (let py = 0; py < pattern.length; py++) {
+      for (let px = 0; px < pattern[py].length; px++) {
+        if (pattern[py][px]) {
+          ctx.fillRect(cx + px * s + offsetX, cy + py * s + offsetY, s, s);
+        }
+      }
+    }
+  }
   hitBgmButton(cx,cy){const b=this._bgmBtn;return b&&this.paused&&cx>=b.x&&cx<=b.x+b.w&&cy>=b.y&&cy<=b.y+b.h;}
   hitResumeButton(cx,cy){if(!this.paused)return false;return cx>=W/2-55&&cx<=W/2+55&&cy>=H/2+18&&cy<=H/2+42;}
   hitPauseButton(cx,cy){const b=this._pauseBtn;return b&&cx>=b.x&&cx<=b.x+b.w&&cy>=b.y&&cy<=b.y+b.h;}

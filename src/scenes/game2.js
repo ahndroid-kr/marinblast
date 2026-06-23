@@ -420,6 +420,28 @@ _drawHearts(ctx, x, yCenter, count) {
   }
 }
 
+  _drawHeart(ctx, cx, cy, size, color) {
+    ctx.fillStyle = color;
+    const s = size / 8;
+    const pattern = [
+      [0,1,1,0,0,1,1,0],
+      [1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1],
+      [0,1,1,1,1,1,1,0],
+      [0,0,1,1,1,1,0,0],
+      [0,0,0,1,1,0,0,0],
+    ];
+    const offsetX = -size / 2;
+    const offsetY = -(pattern.length * s) / 2;
+    for (let py = 0; py < pattern.length; py++) {
+      for (let px = 0; px < pattern[py].length; px++) {
+        if (pattern[py][px]) {
+          ctx.fillRect(cx + px * s + offsetX, cy + py * s + offsetY, s, s);
+        }
+      }
+    }
+  }
+
   _drawPauseButton(ctx) {
     const bx=5,by=4,bw=16,bh=16;
     this._pauseBtn = {x:bx,y:by,w:bw,h:bh};
