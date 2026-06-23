@@ -280,7 +280,6 @@ export class Game4Scene {
     ctx.textAlign='left';
   }
 
-  _drawHearts(ctx,x,yC,count){for(let i=0;i<count;i++)this._drawHeart(ctx,x+i*11,yC,8,'#ff5070');}
 _drawHearts(ctx, x, yCenter, count) {
   const visible = Math.min(count, 5);
 
