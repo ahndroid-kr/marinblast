@@ -50,7 +50,7 @@ export const STARFISH_EFFECT = {
 // =============================================
 // QA 모드 — true면 파워업 시간제한 없음, 라이프 무한
 // 테스트 끝나면 false로만 바꾸면 원복
-export const QA_MODE = true;
+export const QA_MODE = false;
 // =============================================
 
 export const SHIELD_DURATION = 5.0;
