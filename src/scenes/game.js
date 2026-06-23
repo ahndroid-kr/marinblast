@@ -188,7 +188,7 @@ export class GameScene {
       this.clearTimer -= dt;
       if (this.clearTimer <= 0) {
         this.done = true;
-        this.onGameOver(this.score, this.lives); // lives 넘겨서 스테이지 2 이어서 플레이
+        this.onGameOver(this.score, this.lives, this.player, this.optionCount);
       }
     }
   }

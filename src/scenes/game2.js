@@ -20,7 +20,7 @@ const PHASE_BOSS = 'boss';
 const PHASE_CLEAR = 'clear';
 
 export class Game2Scene {
-  constructor(score, lives, onGameOver) {
+  constructor(score, lives, prevPlayer, prevOptCount, onGameOver) {
     this.onGameOver = onGameOver;
     this.player = makePlayer();
     // 스테이지 1에서 이어온 점수/라이프 반영
@@ -169,14 +169,14 @@ this.lives = lives || (QA_MODE ? 99 : 3);
       this.gameOverDelay += dt;
       if (this.gameOverDelay > 1.8) {
         this.done = true;
-        this.onGameOver(this.score, 0);
+        this.onGameOver(this.score, 0, null, 0);
       }
     }
     if (this.phase === PHASE_CLEAR) {
       this.clearTimer -= dt;
       if (this.clearTimer <= 0) {
         this.done = true;
-        this.onGameOver(this.score, this.lives); // lives 전달 → 스테이지 3
+        this.onGameOver(this.score, this.lives, this.player, this.optionCount); // lives 전달 → 스테이지 3
       }
     }
   }

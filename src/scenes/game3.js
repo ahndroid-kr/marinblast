@@ -20,7 +20,7 @@ const PHASE_BOSS = 'boss';
 const PHASE_CLEAR = 'clear';
 
 export class Game3Scene {
-  constructor(score, lives, onGameOver) {
+  constructor(score, lives, prevPlayer, prevOptCount, onGameOver) {
     this.onGameOver = onGameOver;
     this.player = makePlayer();
     this.score = score || 0;
@@ -170,14 +170,14 @@ export class Game3Scene {
       this.gameOverDelay += dt;
       if (this.gameOverDelay > 1.8) {
         this.done = true;
-        this.onGameOver(this.score, 0);
+        this.onGameOver(this.score, 0, null, 0);
       }
     }
     if (this.phase === PHASE_CLEAR) {
       this.clearTimer -= dt;
       if (this.clearTimer <= 0) {
         this.done = true;
-        this.onGameOver(this.score, this.lives);
+        this.onGameOver(this.score, this.lives, this.player, this.optionCount);
       }
     }
   }

@@ -39,25 +39,25 @@ function startTitle() {
   currentScene = new TitleScene(() => startGame());
 }
 function startGame() {
-  currentScene = new GameScene((score, lives) => {
-    if (lives > 0) startGame2(score, lives);
+  currentScene = new GameScene((score, lives, player, optionCount) => {
+    if (lives > 0) startGame2(score, lives, player, optionCount);
     else onGameOver(score);
   });
 }
-function startGame2(score, lives) {
-  currentScene = new Game2Scene(score, lives, (finalScore, remainLives) => {
-    if (remainLives > 0) startGame3(finalScore, remainLives);
+function startGame2(score, lives, player, optionCount) {
+  currentScene = new Game2Scene(score, lives, player, optionCount, (finalScore, remainLives, p, oc) => {
+    if (remainLives > 0) startGame3(finalScore, remainLives, p, oc);
     else onGameOver(finalScore);
   });
 }
-function startGame3(score, lives) {
-  currentScene = new Game3Scene(score, lives, (finalScore, remainLives) => {
-    if (remainLives > 0) startGame4(finalScore, remainLives);
+function startGame3(score, lives, player, optionCount) {
+  currentScene = new Game3Scene(score, lives, player, optionCount, (finalScore, remainLives, p, oc) => {
+    if (remainLives > 0) startGame4(finalScore, remainLives, p, oc);
     else onGameOver(finalScore);
   });
 }
-function startGame4(score, lives) {
-  currentScene = new Game4Scene(score, lives, (finalScore) => onGameOver(finalScore));
+function startGame4(score, lives, player, optionCount) {
+  currentScene = new Game4Scene(score, lives, player, optionCount, (finalScore) => onGameOver(finalScore));
 }
 function onGameOver(score) {
   showNameModal(score);

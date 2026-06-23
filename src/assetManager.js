@@ -44,8 +44,8 @@ import plant11 from './assets/plant_11.png';
 
 const URLS = {
   player: playerUrl, option: optionUrl,
-  background: bgUrl, parallax_mid: midUrl,
   title_logo: titleLogoUrl,
+  background: bgUrl, parallax_mid: midUrl,
   boss_octopus: bossUrl,
   boss_octopus_dead: bossDeadUrl,
   boss_shark: bossSharkUrl,
