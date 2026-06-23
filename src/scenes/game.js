@@ -513,7 +513,6 @@ export class GameScene {
     ctx.textAlign = 'right';
     drawText('STAGE 1', W - 6, 13);
     // 효과 표시
-    // 효과 표시
     const effectParts = [];
     if (this.player.power >= 1 && this.player.powerTime > 0) {
       effectParts.push({ text: 'PWR', color: '#ff8080' });
@@ -531,12 +530,18 @@ export class GameScene {
     ctx.textAlign = 'left';
   }
 
-  _drawHearts(ctx, x, yCenter, count) {
-    for (let i = 0; i < count; i++) {
-      this._drawHeart(ctx, x + i * 11, yCenter, 8, '#ff5070');
-    }
+_drawHearts(ctx, x, yCenter, count) {
+  const visible = Math.min(count, 5);
+
+  for (let i = 0; i < visible; i++) {
+    this._drawHeart(ctx, x + i * 11, yCenter, 8, '#ff5070');
   }
 
+  if (count > 5) {
+    ctx.fillStyle = '#fff';
+    ctx.fillText(`+${count - 5}`, x + visible * 11 + 4, yCenter + 4);
+  }
+}
   _drawHeart(ctx, cx, cy, size, color) {
     ctx.fillStyle = color;
     const s = size / 8;
