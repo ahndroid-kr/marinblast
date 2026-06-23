@@ -411,15 +411,18 @@ this.lives = lives || (QA_MODE ? 99 : 3);
     for (let i = 0; i < count; i++) this._drawHeart(ctx, x+i*11, yCenter, 8, '#ff5070');
   }
 
-  _drawHeart(ctx, cx, cy, size, color) {
-    ctx.fillStyle = color;
-    const s = size/8;
-    const pattern = [[0,1,1,0,0,1,1,0],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,0,0,1,1,0,0,0]];
-    const ox = -size/2, oy = -(pattern.length*s)/2;
-    for (let py = 0; py < pattern.length; py++)
-      for (let px = 0; px < pattern[py].length; px++)
-        if (pattern[py][px]) ctx.fillRect(cx+px*s+ox, cy+py*s+oy, s, s);
+_drawHearts(ctx, x, yCenter, count) {
+  const visible = Math.min(count, 5);
+
+  for (let i = 0; i < visible; i++) {
+    this._drawHeart(ctx, x + i * 11, yCenter, 8, '#ff5070');
   }
+
+  if (count > 5) {
+    ctx.fillStyle = '#fff';
+    ctx.fillText(`+${count - 5}`, x + visible * 11 + 4, yCenter + 4);
+  }
+}
 
   _drawPauseButton(ctx) {
     const bx=5,by=4,bw=16,bh=16;
