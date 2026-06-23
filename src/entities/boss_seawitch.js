@@ -19,8 +19,8 @@ export function makeBossSeawitch() {
     slamWarning: 0,    // 경고 선 표시 시간
     spiralAngle: 0,    // 페이즈 2 나선 각도
     spiralTimer: 0,
-    drawW: 240, drawH: 145,
-    hitRadius: 65,
+    drawW: 160, drawH: 97,
+    hitRadius: 48,
     points: 20000,
     intro: 3.2,
     dying: 0,

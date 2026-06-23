@@ -28,6 +28,18 @@ export class Game4Scene {
     this.options    = new Pool(makeOption,   POOL.option);
     this.particles  = new Pool(makeParticle, POOL.particle);
     this.lifeItems  = new Pool(makeLifeItem, 3);
+
+    // 이전 스테이지 아이템 이어받기
+    if (prevPlayer) {
+      this.player.power      = prevPlayer.power || 0;
+      this.player.powerTime  = prevPlayer.powerTime || 0;
+      this.player.shieldTime = prevPlayer.shieldTime || 0;
+      this.optionCount = prevOptCount || 0;
+      for (let i = 0; i < this.optionCount; i++) {
+        const o = this.options.spawn();
+        if (o) resetOption(o, i);
+      }
+    }
     this.boss       = makeBossSeawitch();
     this.terrain    = new Terrain(STAGE4.terrain, STAGE4.terrain[STAGE4.terrain.length-1].x);
     this.parallax   = new Parallax4();

@@ -29,12 +29,6 @@ import pufferfishUrl from './assets/enemy_pufferfish.png';
 import pufferfishAngryUrl from './assets/enemy_pufferfish_angry.png';
 import stage3BgUrl from './assets/stage3_bg.png';
 
-import bossSeawitchUrl    from './assets/boss_seawitch.png';
-import bossSeawitchDeadUrl from './assets/boss_seawitch_dead.png';
-import spidercrabUrl      from './assets/enemy_spidercrab.png';
-import anglerfishUrl      from './assets/enemy_anglerfish.png';
-import toothfishUrl       from './assets/enemy_toothfish.png';
-
 import plant00 from './assets/plant_00.png';
 import plant01 from './assets/plant_01.png';
 import plant02 from './assets/plant_02.png';
@@ -68,11 +62,6 @@ const URLS = {
   enemy_barracuda: barracudaUrl,
   enemy_pufferfish: pufferfishUrl,
   enemy_pufferfish_angry: pufferfishAngryUrl,
-  boss_seawitch:      bossSeawitchUrl,
-  boss_seawitch_dead: bossSeawitchDeadUrl,
-  enemy_spidercrab:   spidercrabUrl,
-  enemy_anglerfish:   anglerfishUrl,
-  enemy_toothfish:    toothfishUrl,
   stage3_bg: stage3BgUrl,
 
   plant_00:plant00, plant_01:plant01, plant_02:plant02,
@@ -115,4 +104,19 @@ export async function loadAssets(onProgress) {
     if (onProgress) onProgress(done, entries.length);
   }));
 
+  // 스테이지 4 에셋 — 파일이 없어도 빌드 에러 안 남 (optional)
+  const s4assets = {
+    boss_seawitch:      './assets/boss_seawitch.png',
+    boss_seawitch_dead: './assets/boss_seawitch_dead.png',
+    enemy_spidercrab:   './assets/enemy_spidercrab.png',
+    enemy_anglerfish:   './assets/enemy_anglerfish.png',
+    enemy_toothfish:    './assets/enemy_toothfish.png',
+  };
+  await Promise.all(Object.entries(s4assets).map(async ([key, path]) => {
+    try {
+      const m = await import(/* @vite-ignore */ path);
+      const img = await loadImage(m.default);
+      assets[key] = img;
+    } catch { /* 파일 없으면 skip */ }
+  }));
 }

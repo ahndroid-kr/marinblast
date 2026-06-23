@@ -47,11 +47,10 @@
       inset: 0;
       background: rgba(0, 12, 28, 0.85);
       display: none;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
       pointer-events: auto;
       padding: 8px;
-      /* 모달 자체도 스크롤 가능하게 */
       overflow-y: auto;
     }
     .modal.show { display: flex; }
@@ -61,12 +60,13 @@
       padding: 16px 18px;
       width: 100%;
       max-width: 280px;
-      /* 화면 높이 85% 이내로 제한, 넘치면 내부 스크롤 */
-      max-height: 85vh;
+      max-height: 80vh;
       display: flex;
       flex-direction: column;
       text-align: center;
       color: #fff;
+      margin: auto 0;
+      flex-shrink: 0;
     }
     .modal-box h2 { margin-bottom: 10px; color: #ffd; font-size: 18px; flex-shrink: 0; }
     .modal-box p  { margin-bottom: 10px; font-size: 13px; line-height: 1.5; flex-shrink: 0; }
@@ -96,7 +96,7 @@
       /* flex item이라 남은 공간 채우고 넘치면 스크롤 */
       flex: 1;
       min-height: 0;
-      max-height: min(240px, 40vh);
+      max-height: min(180px, 28vh);
       overflow-y: auto;
       overflow-x: hidden;
       margin-bottom: 12px;
