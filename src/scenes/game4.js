@@ -20,7 +20,7 @@ export class Game4Scene {
   constructor(score, lives, onGameOver) {
     this.onGameOver = onGameOver;
     this.player = makePlayer();
-    this.score = score||0; this.lives = lives||3;
+    this.score = score||0; this.lives = lives || (QA_MODE ? 99 : 3);
     this.bullets    = new Pool(makeBullet,   BULLET.poolSize);
     this.enemyBullets = new Pool(makeBullet, POOL.enemyBullet);
     this.enemies    = new Pool(makeEnemy4,   POOL.enemy);
