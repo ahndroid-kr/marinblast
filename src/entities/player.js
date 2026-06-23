@@ -1,13 +1,16 @@
 import { W, H, PLAYER, BULLET, OPTION_DRAW, QA_MODE } from '../config.js';
 import { flipped } from '../assetManager.js';
 
+// 터치 시 플레이어가 손가락보다 위로 이동하는 오프셋
+const TOUCH_OFFSET_Y = 50;
+
 export function makePlayer() {
   return {
     x: PLAYER.startX,
     y: PLAYER.startY,
     fireTimer: 0,
     power: 0,
-    powerTime: 0,    // 빨강 파워업 잔여 시간 (0이면 power=0)
+    powerTime: 0,
     shieldTime: 0,
     alive: true,
     invulnAfterHit: 0,
@@ -22,7 +25,9 @@ export function updatePlayer(p, input, dt) {
   let mx = 0, my = 0;
   if (input.touchActive) {
     const dx = input.touchTarget.x - p.x;
-    const dy = input.touchTarget.y - p.y;
+    // 목표 y = 손가락 y - 오프셋 (플레이어가 손가락 위에 위치)
+    const targetY = input.touchTarget.y - TOUCH_OFFSET_Y;
+    const dy = targetY - p.y;
     const dist = Math.hypot(dx, dy);
     if (dist > 1) {
       const maxStep = PLAYER.speed * dt;
@@ -48,9 +53,7 @@ export function updatePlayer(p, input, dt) {
       if (p.powerTime <= 0) { p.powerTime = 0; p.power = 0; }
     }
   } else {
-    // QA 모드: 파워업은 영구, 실드는 피격 시 소모(player.js에서 건드리지 않음 — game.js에서 처리)
     if (p.power > 0) p.powerTime = 999;
-    // 실드는 타이머 감소 안 함 (하지만 피격 시 game.js에서 0으로 클리어)
   }
   if (p.invulnAfterHit > 0) p.invulnAfterHit -= dt;
 }
@@ -83,41 +86,33 @@ export function drawPlayer(ctx, p) {
   if (p.invulnAfterHit > 0 && Math.floor(p.invulnAfterHit * 20) % 2 === 0) return;
 
   if (p.shieldTime > 0) {
-    // 강화된 실드 — 굵은 외곽 링 + 안쪽 글로우 + 회전하는 입자
     const pulse = 0.7 + Math.sin(p.shieldTime * 10) * 0.3;
-    // 바깥 글로우
     ctx.fillStyle = `rgba(100, 180, 255, ${0.15 * pulse})`;
     ctx.beginPath();
     ctx.arc(p.x, p.y, 26, 0, Math.PI * 2);
     ctx.fill();
-    // 굵은 외곽선
     ctx.strokeStyle = `rgba(140, 230, 255, ${pulse})`;
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(p.x, p.y, 22, 0, Math.PI * 2);
     ctx.stroke();
-    // 안쪽 가는 링
     ctx.strokeStyle = `rgba(255, 255, 255, ${0.6 * pulse})`;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.arc(p.x, p.y, 18, 0, Math.PI * 2);
     ctx.stroke();
-    // 회전하는 입자 4개
     const rotAngle = p.shieldTime * 3;
     for (let i = 0; i < 4; i++) {
       const a = rotAngle + i * Math.PI / 2;
-      const px = p.x + Math.cos(a) * 22;
-      const py = p.y + Math.sin(a) * 22;
       ctx.fillStyle = '#fff';
-      ctx.fillRect(px - 1.5, py - 1.5, 3, 3);
+      ctx.fillRect(p.x + Math.cos(a) * 22 - 1.5, p.y + Math.sin(a) * 22 - 1.5, 3, 3);
     }
   }
 
-  const img = flipped.player; // 좌우 반전된 (오른쪽 보는) 잠수함
+  const img = flipped.player;
   if (img) {
     ctx.drawImage(img, p.x - PLAYER.drawW / 2, p.y - PLAYER.drawH / 2, PLAYER.drawW, PLAYER.drawH);
   } else {
-    // fallback
     ctx.fillStyle = '#ff80b0';
     ctx.fillRect(p.x - PLAYER.drawW/2, p.y - PLAYER.drawH/2, PLAYER.drawW, PLAYER.drawH);
   }
