@@ -42,32 +42,35 @@
       color: #fff;
       font-family: 'Courier New', monospace;
     }
-    .modal {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 12, 28, 0.85);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      pointer-events: auto;
-      padding: 8px;
-      /* 모달 자체도 스크롤 가능하게 */
-      overflow-y: auto;
-    }
+.modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 12, 28, 0.85);
+  display: none;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-bottom: 8px;
+  overflow-y: auto;
+  pointer-events: auto;
+}
     .modal.show { display: flex; }
-    .modal-box {
-      background: #001a30;
-      border: 2px solid #2aa;
-      padding: 16px 18px;
-      width: 100%;
-      max-width: 280px;
-      /* 화면 높이 85% 이내로 제한, 넘치면 내부 스크롤 */
-      max-height: 85vh;
-      display: flex;
-      flex-direction: column;
-      text-align: center;
-      color: #fff;
-    }
+.modal-box {
+  background: #001a30;
+  border: 2px solid #2aa;
+  padding: 16px 18px;
+  width: 100%;
+  max-width: 280px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  color: #fff;
+  margin: auto;       /* ← 이 줄 추가 */
+  flex-shrink: 0;     /* ← 이 줄 추가 */
+}
     .modal-box h2 { margin-bottom: 10px; color: #ffd; font-size: 18px; flex-shrink: 0; }
     .modal-box p  { margin-bottom: 10px; font-size: 13px; line-height: 1.5; flex-shrink: 0; }
     .modal-box input {
