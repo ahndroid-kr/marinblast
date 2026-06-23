@@ -25,7 +25,7 @@ export class Game2Scene {
     this.player = makePlayer();
     // 스테이지 1에서 이어온 점수/라이프 반영
     this.score = score || 0;
-    this.lives = lives || 3;
+this.lives = lives || (QA_MODE ? 99 : 3);
 
     this.bullets = new Pool(makeBullet, BULLET.poolSize);
     this.enemyBullets = new Pool(makeBullet, POOL.enemyBullet);
