@@ -4,6 +4,7 @@ import { TitleScene } from './scenes/title.js';
 import { GameScene } from './scenes/game.js';
 import { Game2Scene } from './scenes/game2.js';
 import { Game3Scene } from './scenes/game3.js';
+import { Game4Scene } from './scenes/game4.js';
 import { submitScore, getTopScores, isRemoteEnabled } from './leaderboard.js';
 import { loadAssets } from './assetManager.js';
 import { audio } from './audio.js';
@@ -50,7 +51,13 @@ function startGame2(score, lives) {
   });
 }
 function startGame3(score, lives) {
-  currentScene = new Game3Scene(score, lives, (finalScore) => onGameOver(finalScore));
+  currentScene = new Game3Scene(score, lives, (finalScore, remainLives) => {
+    if (remainLives > 0) startGame4(finalScore, remainLives);
+    else onGameOver(finalScore);
+  });
+}
+function startGame4(score, lives) {
+  currentScene = new Game4Scene(score, lives, (finalScore) => onGameOver(finalScore));
 }
 function onGameOver(score) {
   showNameModal(score);

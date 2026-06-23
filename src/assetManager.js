@@ -2,7 +2,6 @@ import playerUrl from './assets/player.png';
 import optionUrl from './assets/option.png';
 import bgUrl from './assets/background.png';
 import midUrl from './assets/parallax_mid.png';
-import titleLogoUrl from './assets/title.png';
 import bossUrl from './assets/boss_octopus.png';
 import bossDeadUrl from './assets/boss_octopus_dead.png';
 import starPinkUrl from './assets/star_pink.png';
@@ -28,6 +27,7 @@ import barracudaUrl from './assets/enemy_barracuda.png';
 import pufferfishUrl from './assets/enemy_pufferfish.png';
 import pufferfishAngryUrl from './assets/enemy_pufferfish_angry.png';
 import stage3BgUrl from './assets/stage3_bg.png';
+
 import plant00 from './assets/plant_00.png';
 import plant01 from './assets/plant_01.png';
 import plant02 from './assets/plant_02.png';
@@ -44,7 +44,6 @@ import plant11 from './assets/plant_11.png';
 const URLS = {
   player: playerUrl, option: optionUrl,
   background: bgUrl, parallax_mid: midUrl,
-  title_logo: titleLogoUrl,
   boss_octopus: bossUrl,
   boss_octopus_dead: bossDeadUrl,
   boss_shark: bossSharkUrl,
@@ -62,6 +61,7 @@ const URLS = {
   enemy_pufferfish: pufferfishUrl,
   enemy_pufferfish_angry: pufferfishAngryUrl,
   stage3_bg: stage3BgUrl,
+
   plant_00:plant00, plant_01:plant01, plant_02:plant02,
   plant_03:plant03, plant_04:plant04, plant_05:plant05,
   plant_06:plant06, plant_07:plant07, plant_08:plant08,
@@ -100,5 +100,21 @@ export async function loadAssets(onProgress) {
     if (FLIP_KEYS.includes(key)) flipped[key] = makeFlippedCanvas(img);
     done++;
     if (onProgress) onProgress(done, entries.length);
+  }));
+
+  // 스테이지 4 에셋 — 파일이 없어도 빌드 에러 안 남 (optional)
+  const s4assets = {
+    boss_seawitch:      './assets/boss_seawitch.png',
+    boss_seawitch_dead: './assets/boss_seawitch_dead.png',
+    enemy_spidercrab:   './assets/enemy_spidercrab.png',
+    enemy_anglerfish:   './assets/enemy_anglerfish.png',
+    enemy_toothfish:    './assets/enemy_toothfish.png',
+  };
+  await Promise.all(Object.entries(s4assets).map(async ([key, path]) => {
+    try {
+      const m = await import(/* @vite-ignore */ path);
+      const img = await loadImage(m.default);
+      assets[key] = img;
+    } catch { /* 파일 없으면 skip */ }
   }));
 }
