@@ -21,14 +21,14 @@ export function makeBoss() {
 
 export function spawnBoss(b) {
   b.active = true;
-  b.x = W + 120;
+  b.x = W + 160;
   b.y = H / 2;
   b.vy = 28;
   b.hp = b.maxHp;
   b.phase = 1;
   b.age = 0;
   b.fireTimer = 2.0;
-  b.intro = 1.8;
+  b.intro = 3.0;
   b.dying = 0;
 }
 
@@ -56,7 +56,7 @@ export function updateBoss(b, dt, player, enemyBulletPool, particlePool) {
 
   if (b.intro > 0) {
     b.intro -= dt;
-    b.x = Math.max(W - 150, b.x - 50 * dt);
+    b.x = Math.max(W - 150, b.x - 26 * dt);
     return;
   }
 

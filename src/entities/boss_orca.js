@@ -30,7 +30,7 @@ export function makeBossOrca() {
 
 export function spawnBossOrca(b) {
   b.active = true;
-  b.x = W + 120; b.y = H / 2;
+  b.x = W + 200; b.y = H / 2;
   b.vx = 0; b.vy = 22;
   b.hp = b.maxHp;
   b.phase = 1;
@@ -41,7 +41,7 @@ export function spawnBossOrca(b) {
   b.dashTimer = 6.0;
   b.isDashing = false;
   b.spawnTimer = 8.0;
-  b.intro = 2.2;
+  b.intro = 3.2;
   b.dying = 0;
 }
 
@@ -63,7 +63,7 @@ export function updateBossOrca(b, dt, player, pool, particles) {
 
   if (b.intro > 0) {
     b.intro -= dt;
-    b.x = Math.max(W - 180, b.x - 60*dt);
+    b.x = Math.max(W - 180, b.x - 28*dt);
     return;
   }
 

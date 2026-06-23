@@ -33,7 +33,7 @@ export function makeBossShark() {
 
 export function spawnBossShark(b) {
   b.active = true;
-  b.x = W + 100; b.y = H / 2;
+  b.x = W + 180; b.y = H / 2;
   b.vx = 0; b.vy = 20;
   b.hp = b.maxHp;
   b.phase = 1;
@@ -41,7 +41,7 @@ export function spawnBossShark(b) {
   b.fireTimer = 1.5;
   b.dashTimer = 2.5;
   b.isDashing = false;
-  b.intro = 2.0;
+  b.intro = 3.0;
   b.dying = 0;
   b.laserActive = 0;
   b.laserTimer = 5.0;
@@ -68,7 +68,7 @@ export function updateBossShark(b, dt, player, enemyBulletPool, particlePool) {
   // 입장
   if (b.intro > 0) {
     b.intro -= dt;
-    b.x = Math.max(W - 160, b.x - 55 * dt);
+    b.x = Math.max(W - 160, b.x - 28 * dt);
     return;
   }
 

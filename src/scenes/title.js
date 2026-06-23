@@ -14,7 +14,6 @@ export class TitleScene {
   update(dt, input) {
     this.t += dt;
     this.scrollX += 30 * dt;
-    // 브라우저 자동재생 정책: 사용자 첫 인터랙션 후에만 재생 가능
     if (input.anyKeyEdge) {
       audio.play('main');
       this.onStart();
@@ -26,6 +25,7 @@ export class TitleScene {
     ctx.fillStyle = 'rgba(0, 16, 32, 0.35)';
     ctx.fillRect(0, 0, W, H);
 
+    // 잠수함 데모
     const subImg = flipped.player;
     if (subImg) {
       const subW = 56, subH = 36;
@@ -34,6 +34,8 @@ export class TitleScene {
     }
 
     ctx.textAlign = 'center';
+
+    // 타이틀 로고
     const logo = assets.title_logo;
     if (logo) {
       const lw = 200;
@@ -50,6 +52,7 @@ export class TitleScene {
       ctx.fillText('BLAST', W / 2, H / 2 + 4);
     }
 
+    // PRESS ANY KEY
     if (Math.floor(this.t * 2) % 2 === 0) {
       ctx.font = '9px "Courier New", monospace';
       ctx.fillStyle = '#fff';
@@ -58,6 +61,7 @@ export class TitleScene {
       ctx.fillText('PRESS ANY KEY / TOUCH TO START', W / 2, H / 2 + 70);
     }
 
+    // 조작 안내
     ctx.font = '7px "Courier New", monospace';
     ctx.fillStyle = '#88aacc';
     ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;

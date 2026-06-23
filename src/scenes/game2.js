@@ -20,12 +20,12 @@ const PHASE_BOSS = 'boss';
 const PHASE_CLEAR = 'clear';
 
 export class Game2Scene {
-  constructor(score, lives, onGameOver) {
+  constructor(score, lives, prevPlayer, prevOptCount, onGameOver) {
     this.onGameOver = onGameOver;
     this.player = makePlayer();
     // 스테이지 1에서 이어온 점수/라이프 반영
     this.score = score || 0;
-    this.lives = lives || 3;
+this.lives = lives || (QA_MODE ? 99 : 3);
 
     this.bullets = new Pool(makeBullet, BULLET.poolSize);
     this.enemyBullets = new Pool(makeBullet, POOL.enemyBullet);
@@ -169,14 +169,14 @@ export class Game2Scene {
       this.gameOverDelay += dt;
       if (this.gameOverDelay > 1.8) {
         this.done = true;
-        this.onGameOver(this.score, 0);
+        this.onGameOver(this.score, 0, null, 0);
       }
     }
     if (this.phase === PHASE_CLEAR) {
       this.clearTimer -= dt;
       if (this.clearTimer <= 0) {
         this.done = true;
-        this.onGameOver(this.score, this.lives); // lives 전달 → 스테이지 3
+        this.onGameOver(this.score, this.lives, this.player, this.optionCount); // lives 전달 → 스테이지 3
       }
     }
   }
@@ -407,18 +407,39 @@ export class Game2Scene {
     ctx.textAlign = 'left';
   }
 
-  _drawHearts(ctx, x, yCenter, count) {
-    for (let i = 0; i < count; i++) this._drawHeart(ctx, x+i*11, yCenter, 8, '#ff5070');
+_drawHearts(ctx, x, yCenter, count) {
+  const visible = Math.min(count, 5);
+
+  for (let i = 0; i < visible; i++) {
+    this._drawHeart(ctx, x + i * 11, yCenter, 8, '#ff5070');
   }
+
+  if (count > 5) {
+    ctx.fillStyle = '#fff';
+    ctx.fillText(`+${count - 5}`, x + visible * 11 + 4, yCenter + 4);
+  }
+}
 
   _drawHeart(ctx, cx, cy, size, color) {
     ctx.fillStyle = color;
-    const s = size/8;
-    const pattern = [[0,1,1,0,0,1,1,0],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,0,0,1,1,0,0,0]];
-    const ox = -size/2, oy = -(pattern.length*s)/2;
-    for (let py = 0; py < pattern.length; py++)
-      for (let px = 0; px < pattern[py].length; px++)
-        if (pattern[py][px]) ctx.fillRect(cx+px*s+ox, cy+py*s+oy, s, s);
+    const s = size / 8;
+    const pattern = [
+      [0,1,1,0,0,1,1,0],
+      [1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1],
+      [0,1,1,1,1,1,1,0],
+      [0,0,1,1,1,1,0,0],
+      [0,0,0,1,1,0,0,0],
+    ];
+    const offsetX = -size / 2;
+    const offsetY = -(pattern.length * s) / 2;
+    for (let py = 0; py < pattern.length; py++) {
+      for (let px = 0; px < pattern[py].length; px++) {
+        if (pattern[py][px]) {
+          ctx.fillRect(cx + px * s + offsetX, cy + py * s + offsetY, s, s);
+        }
+      }
+    }
   }
 
   _drawPauseButton(ctx) {
