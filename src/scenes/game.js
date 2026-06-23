@@ -39,7 +39,7 @@ export class GameScene {
     this.stageTime = 0;
     this.timelineCursor = 0;
     this.score = 0;
-    this.lives = 3;
+    this.lives = QA_MODE ? 99 : 3;
     this.bombs = 0;
     this.screenShake = 0;
     this.flashTime = 0;
