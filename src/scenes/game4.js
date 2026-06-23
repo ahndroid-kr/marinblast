@@ -281,12 +281,18 @@ export class Game4Scene {
   }
 
   _drawHearts(ctx,x,yC,count){for(let i=0;i<count;i++)this._drawHeart(ctx,x+i*11,yC,8,'#ff5070');}
-  _drawHeart(ctx,cx,cy,size,color){
-    ctx.fillStyle=color;const s=size/8;
-    const pt=[[0,1,1,0,0,1,1,0],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,0,0,1,1,0,0,0]];
-    const ox=-size/2,oy=-(pt.length*s)/2;
-    for(let py=0;py<pt.length;py++)for(let px=0;px<pt[py].length;px++)if(pt[py][px])ctx.fillRect(cx+px*s+ox,cy+py*s+oy,s,s);
+_drawHearts(ctx, x, yCenter, count) {
+  const visible = Math.min(count, 5);
+
+  for (let i = 0; i < visible; i++) {
+    this._drawHeart(ctx, x + i * 11, yCenter, 8, '#ff5070');
   }
+
+  if (count > 5) {
+    ctx.fillStyle = '#fff';
+    ctx.fillText(`+${count - 5}`, x + visible * 11 + 4, yCenter + 4);
+  }
+}
   _drawPauseButton(ctx){
     const bx=5,by=4,bw=16,bh=16;this._pauseBtn={x:bx,y:by,w:bw,h:bh};
     ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(bx,by,bw,bh);
