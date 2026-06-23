@@ -407,10 +407,6 @@ this.lives = lives || (QA_MODE ? 99 : 3);
     ctx.textAlign = 'left';
   }
 
-  _drawHearts(ctx, x, yCenter, count) {
-    for (let i = 0; i < count; i++) this._drawHeart(ctx, x+i*11, yCenter, 8, '#ff5070');
-  }
-
 _drawHearts(ctx, x, yCenter, count) {
   const visible = Math.min(count, 5);
 
